@@ -4,7 +4,7 @@ import requests
 import json  
   
 def get_spaces(request):  
-    url = "https://confluence-dev.amd.com/rest/api/space?type=global&limit=1000"  
+    url = "https://confluence-dev.amd.com/rest/api/space?type=global&limit=5000"  
     auth = HTTPBasicAuth("confadmin", "17n3e0o")  
     headers = {  
         "Accept": "application/json"  
