@@ -67,7 +67,6 @@ function updateTable(spaces) {
         tableRows += `  
             <tr>  
                 <td>${space.name}</td>  
-                <td>${space.owner}</td>  
                 <td class="button-column">  
                     <button class="btn btn-sm btn-info" onclick="logOwnerName('${space.owner}')">  
                         <i class="bi bi-envelope-check"></i> Request
