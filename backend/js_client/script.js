@@ -26,6 +26,8 @@ const PASSWORD = '17n3e0o';
 ********************************************************************/
 
 let fetchedSpaces = [];  
+
+let currentSpaces = [];  
   
 function fetchSpaces() {  
     const endpoint = `${API_URL}/spaces`  
@@ -41,6 +43,7 @@ function fetchSpaces() {
         })  
         .then(data => {  
             fetchedSpaces = data.results;  
+            currentSpaces = fetchedSpaces;
             updateTable(fetchedSpaces);  
         })  
         .catch(error => {  
@@ -64,6 +67,11 @@ function updateTable(spaces) {
         tableRows += `  
             <tr>  
                 <td>${space.name}</td>  
+                <td class="button-column">  
+                    <button class="btn btn-sm btn-info" onclick="logOwnerName('${space.owner}')">  
+                        <i class="bi bi-envelope-check"></i> Request
+                    </button>  
+                </td> 
             </tr>  
         `;  
     });  
@@ -72,6 +80,10 @@ function updateTable(spaces) {
   
     // Update the pagination  
     displayPageNumbers(spaces.length);  
+}  
+
+function logOwnerName(ownerName) {  
+    console.log(ownerName);  
 }  
   
 function displayPageNumbers(totalCount) {  
@@ -149,9 +161,9 @@ function changePage(page) {
     currentPage = page;  
     const startIndex = (currentPage - 1) * itemsPerPage;  
     const endIndex = startIndex + itemsPerPage;  
-    const paginatedSpaces = fetchedSpaces.slice(startIndex, endIndex);  
+    const paginatedSpaces = currentSpaces.slice(startIndex, endIndex);
     updateTable(paginatedSpaces);  
-    displayPageNumbers(fetchedSpaces.length);
+    displayPageNumbers(currentSpaces.length); 
 } 
 
 
@@ -174,6 +186,15 @@ searchForm.addEventListener('submit', (event) => {
     updateTable(filteredSpaces);  
 }); 
 
+function applySearch() {  
+    const searchValue = searchInput.value;  
+    filteredSpaces = fetchedSpaces.filter(space => {  
+        return space.name.toLowerCase().includes(searchValue.toLowerCase());  
+    });  
+    currentSpaces = filteredSpaces;
+    changePage(1, filteredSpaces);  
+}  
+
 
 /********************************************************************
   
@@ -183,9 +204,10 @@ searchForm.addEventListener('submit', (event) => {
   
 resetButton.addEventListener('click', () => {  
     document.getElementById('search').value = '';  
-    autocompleteList.innerHTML = ''; // Add this line to close the autocomplete dropdown list  
+    autocompleteList.innerHTML = '';  
+    currentSpaces = fetchedSpaces;
     updateTable(fetchedSpaces);  
-}); 
+});  
 
 
 /********************************************************************
@@ -225,26 +247,17 @@ searchInput.addEventListener('input', showAutocompleteSuggestions);
 searchInput.addEventListener('keydown', (event) => {  
     if (event.key === 'Enter') {  
         event.preventDefault();  
-        const searchValue = searchInput.value;  
-        const filteredSpaces = fetchedSpaces.filter(space => {  
-            return space.name.toLowerCase().includes(searchValue.toLowerCase());  
-        });  
-        updateTable(filteredSpaces);  
-        autocompleteList.innerHTML = '';
+        applySearch(); // Call applySearch here  
+        autocompleteList.innerHTML = '';  
     }  
 });  
 
 // Closes auto-complete suggestions when you click the "Search" button
 searchButton.addEventListener('click', (event) => {  
     event.preventDefault();  
-    const searchValue = searchInput.value;  
-    const filteredSpaces = fetchedSpaces.filter(space => {  
-        return space.name.toLowerCase().includes(searchValue.toLowerCase());  
-    });  
-    updateTable(filteredSpaces);  
-    displayPageNumbers(filteredSpaces.length);
-    autocompleteList.innerHTML = '';
-});  
+    applySearch(); // Call applySearch here  
+    autocompleteList.innerHTML = '';  
+});   
 
 
 /********************************************************************
