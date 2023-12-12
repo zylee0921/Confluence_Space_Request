@@ -80,28 +80,37 @@ function updateTable(spaces) {
 function logOwnerName() {  
     console.log("Request testing...");  
 }  
+
+/********************************************************************
   
+                              Pagination
+
+********************************************************************/
+
+// Function used to create pagination buttons
+function createPaginationButton(text, disabled, clickHandler) {  
+    const button = document.createElement('button');  
+    button.textContent = text;  
+    button.classList.add('pagination-btn');  
+    button.disabled = disabled;  
+    button.addEventListener('click', clickHandler);  
+    return button;  
+}  
+  
+// Function use to create and display the pagination buttons
 function displayPageNumbers(totalCount) {  
     const totalPages = Math.ceil(totalCount / itemsPerPage);  
     const pageNumbersDiv = pagination;  
     pageNumbersDiv.innerHTML = '';  
 
     // "First Page" button  
-    const firstPageButton = document.createElement('button');  
-    firstPageButton.textContent = '<<';  
-    firstPageButton.classList.add('pagination-btn');  
-    firstPageButton.disabled = currentPage === 1;  
-    firstPageButton.addEventListener('click', () => {  
+    const firstPageButton = createPaginationButton('<<', currentPage === 1, () => {  
         changePage(1);  
     });  
-    pageNumbersDiv.appendChild(firstPageButton); 
-
+    pageNumbersDiv.appendChild(firstPageButton);  
+    
     // "Previous Page" button  
-    const prevPageButton = document.createElement('button');  
-    prevPageButton.textContent = '<';  
-    prevPageButton.classList.add('pagination-btn');  
-    prevPageButton.disabled = currentPage === 1;  
-    prevPageButton.addEventListener('click', () => {  
+    const prevPageButton = createPaginationButton('<', currentPage === 1, () => {  
         if (currentPage > 1) {  
             changePage(currentPage - 1);  
         }  
@@ -129,26 +138,18 @@ function displayPageNumbers(totalCount) {
     }  
 
     // "Next Page" button  
-    const nextPageButton = document.createElement('button');  
-    nextPageButton.textContent = '>';  
-    nextPageButton.classList.add('pagination-btn');  
-    nextPageButton.disabled = currentPage === totalPages;  
-    nextPageButton.addEventListener('click', () => {  
+    const nextPageButton = createPaginationButton('>', currentPage === totalPages, () => {  
         if (currentPage < totalPages) {  
             changePage(currentPage + 1);  
         }  
     });  
-    pageNumbersDiv.appendChild(nextPageButton); 
-
-    // Add "Last Page" button  
-    const lastPageButton = document.createElement('button');  
-    lastPageButton.textContent = '>>';  
-    lastPageButton.classList.add('pagination-btn');  
-    lastPageButton.disabled = currentPage === totalPages;  
-    lastPageButton.addEventListener('click', () => {  
+    pageNumbersDiv.appendChild(nextPageButton);  
+    
+    // "Last Page" button  
+    const lastPageButton = createPaginationButton('>>', currentPage === totalPages, () => {  
         changePage(totalPages);  
     });  
-    pageNumbersDiv.appendChild(lastPageButton); 
+    pageNumbersDiv.appendChild(lastPageButton);
 }  
 
 // Change Page Function
