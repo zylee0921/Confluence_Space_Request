@@ -14,9 +14,6 @@ const searchButton = document.getElementById('search-button');
 const autocompleteList = document.getElementById('autocomplete-list'); 
 const pagination = document.getElementById('pagination');  
 const itemsPerPage = 20;   
-  
-const USERNAME = 'confadmin';  
-const PASSWORD = '17n3e0o';  
 
 
 /********************************************************************
@@ -31,10 +28,8 @@ let currentSpaces = [];
   
 function fetchSpaces() {  
     const endpoint = `${API_URL}/spaces`  
-    const headers = new Headers();  
-    headers.set('Authorization', 'Basic ' + btoa(USERNAME + ":" + PASSWORD));  
   
-    fetch(endpoint, { headers })  
+    fetch(endpoint)  
         .then(response => {  
             if (!response.ok) {  
                 throw new Error('Network response was not ok');  
@@ -68,7 +63,7 @@ function updateTable(spaces) {
             <tr>  
                 <td>${space.name}</td>  
                 <td class="button-column">  
-                    <button class="btn btn-sm btn-info" onclick="logOwnerName('${space.owner}')">  
+                    <button class="btn btn-sm btn-info" onclick="logOwnerName()">  
                         <i class="bi bi-envelope-check"></i> Request
                     </button>  
                 </td> 
@@ -82,8 +77,8 @@ function updateTable(spaces) {
     displayPageNumbers(spaces.length);  
 }  
 
-function logOwnerName(ownerName) {  
-    console.log(ownerName);  
+function logOwnerName() {  
+    console.log("Request testing...");  
 }  
   
 function displayPageNumbers(totalCount) {  
