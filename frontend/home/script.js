@@ -22,28 +22,56 @@ const itemsPerPage = 20;
 
 ********************************************************************/
 
+let fetchedCurrentUser = [];
+
+function fetchCurrentUser() {
+    const endpoint = `${API_URL}/current`
+
+    fetch(endpoint)    
+        .then(response => {    
+            if (!response.ok) {    
+                throw new Error('Network response was not ok');    
+            }    
+            return response.json();    
+        })    
+        .then(data => {    
+            currentUserInfo = data;  
+            console.log(`Username: ${currentUserInfo.username}\nUserkey: ${currentUserInfo.userKey}`)  
+        })    
+        .catch(error => {    
+            console.error('Error fetching current user:', error);    
+        });  
+}
+
+
+/********************************************************************
+  
+                           Gets list of spaces
+
+********************************************************************/
+
 let fetchedSpaces = [];  
 
 let currentSpaces = [];  
   
-function fetchSpaces() {  
-    const endpoint = `${API_URL}/spaces`  
-  
-    fetch(endpoint)  
-        .then(response => {  
-            if (!response.ok) {  
-                throw new Error('Network response was not ok');  
-            }  
-            return response.json();  
-        })  
-        .then(data => {  
-            fetchedSpaces = data.results;  
-            currentSpaces = fetchedSpaces;
-            updateTable(fetchedSpaces);  
-        })  
-        .catch(error => {  
-            console.error('Error fetching spaces:', error);  
-        });  
+function fetchSpaces() {    
+    const endpoint = `${API_URL}/spaces`    
+    
+    fetch(endpoint)    
+        .then(response => {    
+            if (!response.ok) {    
+                throw new Error('Network response was not ok');    
+            }    
+            return response.json();    
+        })    
+        .then(data => {    
+            fetchedSpaces = data.results;    
+            currentSpaces = fetchedSpaces;  
+            changePage(1); 
+        })    
+        .catch(error => {    
+            console.error('Error fetching spaces:', error);    
+        });    
 }  
 
 
@@ -80,6 +108,7 @@ function updateTable(spaces) {
 function logOwnerName() {  
     console.log("Request testing...");  
 }  
+
 
 /********************************************************************
   
@@ -264,6 +293,7 @@ searchButton.addEventListener('click', (event) => {
 
 // Initial Fetch  
 fetchSpaces();
+fetchCurrentUser();
 
 // Syncs the list of spaces update with the one in Confluence every 300000ms
 setInterval(fetchSpaces, 300000);  
