@@ -22,7 +22,7 @@ const itemsPerPage = 20;
 
 ********************************************************************/
 
-let fetchedCurrentUser = [];
+let currentUserInfo = [];
 
 function fetchCurrentUser() {
     const endpoint = `${API_URL}/current`
@@ -91,7 +91,7 @@ function updateTable(spaces) {
             <tr>  
                 <td>${space.name}</td>  
                 <td class="button-column">  
-                    <button class="btn btn-sm btn-info" onclick="logOwnerName()">  
+                    <button class="btn btn-sm btn-info" onclick="requestLog('${space.name}')">  
                         <i class="bi bi-envelope-check"></i> Request
                     </button>  
                 </td> 
@@ -105,9 +105,16 @@ function updateTable(spaces) {
     displayPageNumbers(spaces.length);  
 }  
 
-function logOwnerName() {  
-    console.log("Request testing...");  
-}  
+
+/********************************************************************
+  
+                           Request Functions
+
+********************************************************************/
+
+function requestLog(spaceName) {
+    console.log(`The user, ${currentUserInfo.username}, with the user key, ${currentUserInfo.userKey}, has requested access to the space:${spaceName}.`)
+}
 
 
 /********************************************************************

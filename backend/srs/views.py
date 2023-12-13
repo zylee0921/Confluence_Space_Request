@@ -57,4 +57,3 @@ def get_current_user(request):
         return JsonResponse(data)    
     except json.decoder.JSONDecodeError:    
         return JsonResponse({"error": "Failed to parse JSON"}, status=500)  
-
