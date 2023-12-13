@@ -1,0 +1,17 @@
+# Ignore the .env file  
+.env  
+  
+# Ignore Python compiled files  
+__pycache__/  
+*.pyc  
+*.pyo  
+*.pyd  
+  
+# Ignore Django migration files  
+*/migrations/*  
+  
+# Ignore other common files  
+*.log  
+*.swp  
+*.bak  
+*.tmp  

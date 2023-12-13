@@ -14,9 +14,34 @@ const searchButton = document.getElementById('search-button');
 const autocompleteList = document.getElementById('autocomplete-list'); 
 const pagination = document.getElementById('pagination');  
 const itemsPerPage = 20;   
+
+
+/********************************************************************
   
-const USERNAME = 'confadmin';  
-const PASSWORD = '17n3e0o';  
+                           Gets list of spaces
+
+********************************************************************/
+
+let currentUserInfo = [];
+
+function fetchCurrentUser() {
+    const endpoint = `${API_URL}/current`
+
+    fetch(endpoint)    
+        .then(response => {    
+            if (!response.ok) {    
+                throw new Error('Network response was not ok');    
+            }    
+            return response.json();    
+        })    
+        .then(data => {    
+            currentUserInfo = data;  
+            console.log(`Username: ${currentUserInfo.username}\nUserkey: ${currentUserInfo.userKey}`)  
+        })    
+        .catch(error => {    
+            console.error('Error fetching current user:', error);    
+        });  
+}
 
 
 /********************************************************************
@@ -29,26 +54,24 @@ let fetchedSpaces = [];
 
 let currentSpaces = [];  
   
-function fetchSpaces() {  
-    const endpoint = `${API_URL}/spaces`  
-    const headers = new Headers();  
-    headers.set('Authorization', 'Basic ' + btoa(USERNAME + ":" + PASSWORD));  
-  
-    fetch(endpoint, { headers })  
-        .then(response => {  
-            if (!response.ok) {  
-                throw new Error('Network response was not ok');  
-            }  
-            return response.json();  
-        })  
-        .then(data => {  
-            fetchedSpaces = data.results;  
-            currentSpaces = fetchedSpaces;
-            updateTable(fetchedSpaces);  
-        })  
-        .catch(error => {  
-            console.error('Error fetching spaces:', error);  
-        });  
+function fetchSpaces() {    
+    const endpoint = `${API_URL}/spaces`    
+    
+    fetch(endpoint)    
+        .then(response => {    
+            if (!response.ok) {    
+                throw new Error('Network response was not ok');    
+            }    
+            return response.json();    
+        })    
+        .then(data => {    
+            fetchedSpaces = data.results;    
+            currentSpaces = fetchedSpaces;  
+            changePage(1); 
+        })    
+        .catch(error => {    
+            console.error('Error fetching spaces:', error);    
+        });    
 }  
 
 
@@ -68,7 +91,7 @@ function updateTable(spaces) {
             <tr>  
                 <td>${space.name}</td>  
                 <td class="button-column">  
-                    <button class="btn btn-sm btn-info" onclick="logOwnerName('${space.owner}')">  
+                    <button class="btn btn-sm btn-info" onclick="requestLog('${space.name}')">  
                         <i class="bi bi-envelope-check"></i> Request
                     </button>  
                 </td> 
@@ -82,31 +105,48 @@ function updateTable(spaces) {
     displayPageNumbers(spaces.length);  
 }  
 
-function logOwnerName(ownerName) {  
-    console.log(ownerName);  
+
+/********************************************************************
+  
+                           Request Functions
+
+********************************************************************/
+
+function requestLog(spaceName) {
+    console.log(`The user, ${currentUserInfo.username}, with the user key, ${currentUserInfo.userKey}, has requested access to the space:${spaceName}.`)
+}
+
+
+/********************************************************************
+  
+                              Pagination
+
+********************************************************************/
+
+// Function used to create pagination buttons
+function createPaginationButton(text, disabled, clickHandler) {  
+    const button = document.createElement('button');  
+    button.textContent = text;  
+    button.classList.add('pagination-btn');  
+    button.disabled = disabled;  
+    button.addEventListener('click', clickHandler);  
+    return button;  
 }  
   
+// Function use to create and display the pagination buttons
 function displayPageNumbers(totalCount) {  
     const totalPages = Math.ceil(totalCount / itemsPerPage);  
     const pageNumbersDiv = pagination;  
     pageNumbersDiv.innerHTML = '';  
 
     // "First Page" button  
-    const firstPageButton = document.createElement('button');  
-    firstPageButton.textContent = '<<';  
-    firstPageButton.classList.add('pagination-btn');  
-    firstPageButton.disabled = currentPage === 1;  
-    firstPageButton.addEventListener('click', () => {  
+    const firstPageButton = createPaginationButton('<<', currentPage === 1, () => {  
         changePage(1);  
     });  
-    pageNumbersDiv.appendChild(firstPageButton); 
-
+    pageNumbersDiv.appendChild(firstPageButton);  
+    
     // "Previous Page" button  
-    const prevPageButton = document.createElement('button');  
-    prevPageButton.textContent = '<';  
-    prevPageButton.classList.add('pagination-btn');  
-    prevPageButton.disabled = currentPage === 1;  
-    prevPageButton.addEventListener('click', () => {  
+    const prevPageButton = createPaginationButton('<', currentPage === 1, () => {  
         if (currentPage > 1) {  
             changePage(currentPage - 1);  
         }  
@@ -134,26 +174,18 @@ function displayPageNumbers(totalCount) {
     }  
 
     // "Next Page" button  
-    const nextPageButton = document.createElement('button');  
-    nextPageButton.textContent = '>';  
-    nextPageButton.classList.add('pagination-btn');  
-    nextPageButton.disabled = currentPage === totalPages;  
-    nextPageButton.addEventListener('click', () => {  
+    const nextPageButton = createPaginationButton('>', currentPage === totalPages, () => {  
         if (currentPage < totalPages) {  
             changePage(currentPage + 1);  
         }  
     });  
-    pageNumbersDiv.appendChild(nextPageButton); 
-
-    // Add "Last Page" button  
-    const lastPageButton = document.createElement('button');  
-    lastPageButton.textContent = '>>';  
-    lastPageButton.classList.add('pagination-btn');  
-    lastPageButton.disabled = currentPage === totalPages;  
-    lastPageButton.addEventListener('click', () => {  
+    pageNumbersDiv.appendChild(nextPageButton);  
+    
+    // "Last Page" button  
+    const lastPageButton = createPaginationButton('>>', currentPage === totalPages, () => {  
         changePage(totalPages);  
     });  
-    pageNumbersDiv.appendChild(lastPageButton); 
+    pageNumbersDiv.appendChild(lastPageButton);
 }  
 
 // Change Page Function
@@ -268,6 +300,7 @@ searchButton.addEventListener('click', (event) => {
 
 // Initial Fetch  
 fetchSpaces();
+fetchCurrentUser();
 
 // Syncs the list of spaces update with the one in Confluence every 300000ms
 setInterval(fetchSpaces, 300000);  
