@@ -5,6 +5,7 @@ from django.http import JsonResponse
 from django.conf import settings  
 
 auth = HTTPBasicAuth(settings.CONFLUENCE_USERNAME, settings.CONFLUENCE_PASSWORD)  
+CERTIFICATE_PATH = '../certfile.crt' 
   
 # Retrieves the list of spaces
 def get_spaces(request):    
@@ -18,7 +19,7 @@ def get_spaces(request):
             url,    
             headers=headers,    
             auth=auth,    
-            verify=False  # Could be problematic here    
+            verify=CERTIFICATE_PATH  # Add certification verification in the future
         )    
         get_response.raise_for_status()  
     except requests.exceptions.RequestException as e:  
@@ -46,7 +47,7 @@ def get_current_user(request):
             url,    
             headers=headers,    
             auth=auth,    
-            verify=False  # Could be problematic here    
+            verify=CERTIFICATE_PATH  # Add certification verification in the future
         )    
         get_response.raise_for_status()  
     except requests.exceptions.RequestException as e:  
