@@ -4,6 +4,7 @@ from requests.auth import HTTPBasicAuth
 from django.http import JsonResponse  
 from django.conf import settings  
 
+# Permission/Authentication/Certification Stuff
 auth = HTTPBasicAuth(settings.CONFLUENCE_USERNAME, settings.CONFLUENCE_PASSWORD)  
 CERTIFICATE_PATH = '../certfile.crt' 
   

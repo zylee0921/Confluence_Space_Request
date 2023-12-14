@@ -18,7 +18,7 @@ const itemsPerPage = 20;
 
 /********************************************************************
   
-                           Gets list of spaces
+                           Gets current user
 
 ********************************************************************/
 
@@ -64,11 +64,11 @@ function fetchSpaces() {
             }    
             return response.json();    
         })    
-        .then(data => {    
-            fetchedSpaces = data.results;    
+        .then((data) => {  
+            fetchedSpaces = data.results.map((space) => ({ ...space, inCart: false }));  
             currentSpaces = fetchedSpaces;  
-            changePage(1); 
-        })    
+            changePage(1);  
+        }) 
         .catch(error => {    
             console.error('Error fetching spaces:', error);    
         });    
@@ -82,19 +82,40 @@ function fetchSpaces() {
 ********************************************************************/
 
 let currentPage = 1;  
-  
+
 function updateTable(spaces) {  
     let tableRows = '';  
   
-    spaces.forEach(space => {  
+    spaces.forEach((space, index) => {  
+        const buttonId = `addToCartButton-${index}`;  
+        const buttonDisabled = space.requested ? ' disabled' : '';  
+        let buttonIcon, buttonClass, buttonAction, buttonText;  
+  
+        if (space.requested) {  
+            buttonIcon = '';  
+            buttonClass = 'btn-secondary';  
+            buttonAction = '';  
+            buttonText = 'Requested';  
+        } else if (space.inCart) {  
+            buttonIcon = 'bi-cart-x';  
+            buttonClass = 'btn-danger';  
+            buttonAction = `removeFromCart('${space.name}', '${buttonId}')`;  
+            buttonText = ' Cancel';  
+        } else {  
+            buttonIcon = 'bi-cart-plus';  
+            buttonClass = 'btn-info';  
+            buttonAction = `addToCart('${space.name}', '${buttonId}')`;  
+            buttonText = ' Add to Cart';  
+        }  
+  
         tableRows += `  
             <tr>  
                 <td>${space.name}</td>  
                 <td class="button-column">  
-                    <button class="btn btn-sm btn-info" onclick="requestLog('${space.name}')">  
-                        <i class="bi bi-envelope-check"></i> Request
-                    </button>  
-                </td> 
+                <button class="btn btn-sm ${buttonClass}${buttonDisabled}" id="${buttonId}" onclick="${buttonAction}">  
+                    <i class="bi ${buttonIcon}"></i>${buttonText}  
+                </button>  
+                </td>  
             </tr>  
         `;  
     });  
@@ -104,6 +125,8 @@ function updateTable(spaces) {
     // Update the pagination  
     displayPageNumbers(spaces.length);  
 }  
+ 
+ 
 
 
 /********************************************************************
@@ -112,9 +135,138 @@ function updateTable(spaces) {
 
 ********************************************************************/
 
-function requestLog(spaceName) {
-    console.log(`The user, ${currentUserInfo.username}, with the user key, ${currentUserInfo.userKey}, has requested access to the space:${spaceName}.`)
-}
+function requestAccessForCartItems() {  
+    cartItems.forEach((spaceName) => {  
+        console.log(`The user, ${currentUserInfo.username}, with the user key, ${currentUserInfo.userKey}, has requested access to the space: ${spaceName}.`);  
+  
+        // Find the space in fetchedSpaces and set its requested property to true  
+        fetchedSpaces.find((space) => space.name === spaceName).requested = true;  
+  
+        // Remove the item from the cart list  
+        removeFromCart(spaceName, null);  
+    });  
+  
+    // Update the main list to show the disabled buttons  
+    updateTable(currentSpaces);  
+  
+    // Clear the cart list  
+    cartItems = [];  
+    displayCartItems();  
+}  
+
+
+/********************************************************************
+  
+                            Cart Functions
+
+********************************************************************/
+let cartItems = [];
+
+// Add space to cart list
+function addToCart(spaceName, buttonId) {  
+    if (!cartItems.includes(spaceName)) {  
+        cartItems.push(spaceName);  
+        displayCartItems();  
+    
+        fetchedSpaces.find((space) => space.name === spaceName).inCart = true; 
+        
+        const button = document.getElementById(buttonId);  
+        button.innerHTML = '<i class="bi bi-cart-x"></i> Cancel';  
+        button.classList.remove("btn-info");  
+        button.classList.add("btn-danger");  
+        button.onclick = () => removeFromCart(spaceName, buttonId);  
+    }  
+} 
+
+// Remove space from cart list and updates cancel button in main list
+function removeFromCart(spaceName, buttonId) {  
+    cartItems = cartItems.filter((item) => item !== spaceName);  
+    displayCartItems();  
+  
+    fetchedSpaces.find((space) => space.name === spaceName).inCart = false;  
+  
+    if (!buttonId) {  
+        // Find the index of the space in the currentSpaces array  
+        const spaceIndex = currentSpaces.findIndex((space) => space.name === spaceName);  
+  
+        // If the space is found in the currentSpaces array, update the button state  
+        if (spaceIndex !== -1) {  
+            buttonId = `addToCartButton-${spaceIndex}`;  
+        }  
+    }  
+  
+    if (buttonId) {  
+        const button = document.getElementById(buttonId);  
+        button.innerHTML = '<i class="bi bi-cart-plus"></i> Add to Cart';  
+        button.classList.remove("btn-danger");  
+        button.classList.add("btn-info");  
+        button.onclick = () => addToCart(spaceName, buttonId);  
+    }  
+}  
+
+// Creates the display for the cart list
+function displayCartItems() {  
+    const cartItemsContainer = document.getElementById("cartItemsContainer");  
+    let cartItemsHTML = '<div class="cart-items-wrapper">';  
+  
+    if (cartItems.length === 0) {  
+        cartItemsHTML += `  
+            <ul class="list-group text-center">  
+                <div>  
+                    <img src="icons/empty-cart.png" alt="Empty Cart" class="empty-cart-image" />  
+                </div>  
+                <br>  
+                The cart is currently empty.  
+            </ul>`;  
+    } else {  
+        cartItems.forEach((spaceName) => {  
+            cartItemsHTML += `  
+                <ul class="list-group">  
+                    <div class="cart-item">  
+                        ${spaceName}  
+                        <button class="btn btn-sm btn-danger float-right" onclick="removeItemFromCart('${spaceName}', event);">  
+                            <i class="bi bi-x disabled"></i>  
+                        </button>  
+                    </div>  
+                </ul>`;  
+        });  
+  
+        cartItemsHTML += `  
+            <div class="dropdown-divider"></div>  
+            <button class="btn btn-sm btn-success w-100" onclick="requestAccessForCartItems()">  
+                Request Access  
+            </button>`;  
+    }  
+  
+    cartItemsHTML += '</div>';  
+    cartItemsContainer.innerHTML = cartItemsHTML;  
+}  
+
+
+
+// Removes item from cart list
+function removeItemFromCart(spaceName, event) {  
+    event.stopPropagation();
+
+    removeFromCart(spaceName, null);  
+    displayCartItems();
+    
+    // Find the index of the space in the currentSpaces array  
+    const spaceIndex = currentSpaces.findIndex((space) => space.name === spaceName);  
+    
+    // If the space is found in the currentSpaces array, update the button state  
+    if (spaceIndex !== -1) {  
+        const buttonId = `addToCartButton-${spaceIndex}`;  
+        const button = document.getElementById(buttonId);  
+        
+        if (button) {  
+            button.innerHTML = '<i class="bi bi-cart-plus"></i> Add to Cart';  
+            button.classList.remove("btn-danger");  
+            button.classList.add("btn-info");  
+            button.onclick = () => addToCart(spaceName, buttonId);  
+        }  
+    }  
+} 
 
 
 /********************************************************************
@@ -301,6 +453,7 @@ searchButton.addEventListener('click', (event) => {
 // Initial Fetch  
 fetchSpaces();
 fetchCurrentUser();
+displayCartItems();
 
 // Syncs the list of spaces update with the one in Confluence every 300000ms
 setInterval(fetchSpaces, 300000);  

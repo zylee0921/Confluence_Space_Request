@@ -26,14 +26,23 @@
         <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarText" aria-controls="navbarText" aria-expanded="false" aria-label="Toggle navigation">
             <span class="navbar-toggler-icon"></span>
         </button>
+
         <div class="collapse navbar-collapse" id="navbarText">
             <ul class="navbar-nav mr-auto">
-                <!-- <li class="nav-item">
-                    <a class="nav-link" id="logout-button" href="#">Logout</a>
-                </li> -->
+                <!-- Navbar items -->  
             </ul>
         </div>
+
+        <div class="dropdown">  
+            <button class="btn btn-outline-success my-2 my-sm-0 dropdown-toggle" type="button" id="cartDropdown" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">  
+                View Cart  
+            </button>  
+            <div class="dropdown-menu dropdown-menu-right" aria-labelledby="cartDropdown" id="cartItemsContainer">  
+              <!-- Cart items will be displayed here -->  
+            </div>  
+        </div> 
     </nav>
+
 
     <div class="container">  
         <h1 class="my-4">Spaces List</h1>  
