@@ -91,16 +91,19 @@ function updateTable(spaces) {
         const buttonDisabled = space.requested ? ' disabled' : '';  
         let buttonIcon, buttonClass, buttonAction, buttonText;  
   
+        // If already requested
         if (space.requested) {  
             buttonIcon = '';  
             buttonClass = 'btn-secondary';  
             buttonAction = '';  
             buttonText = 'Requested';  
+        // If already in cart
         } else if (space.inCart) {  
             buttonIcon = 'bi-cart-x';  
             buttonClass = 'btn-danger';  
             buttonAction = `removeFromCart('${space.name}', '${buttonId}')`;  
             buttonText = ' Cancel';  
+        // If not request and not in cart
         } else {  
             buttonIcon = 'bi-cart-plus';  
             buttonClass = 'btn-info';  
@@ -126,8 +129,6 @@ function updateTable(spaces) {
     displayPageNumbers(spaces.length);  
 }  
  
- 
-
 
 /********************************************************************
   
@@ -242,8 +243,6 @@ function displayCartItems() {
     cartItemsContainer.innerHTML = cartItemsHTML;  
 }  
 
-
-
 // Removes item from cart list
 function removeItemFromCart(spaceName, event) {  
     event.stopPropagation();
@@ -356,7 +355,7 @@ function changePage(page) {
                            Search Functions
 
 ********************************************************************/
-  
+
 function searchSpaces(searchInput) {  
     return fetchedSpaces.filter(space => {  
         return space.name.toLowerCase().includes(searchInput.toLowerCase());  
@@ -378,6 +377,25 @@ function applySearch() {
     currentSpaces = filteredSpaces;
     changePage(1, filteredSpaces);  
 }  
+
+// Shows auto-complete suggestions when writing in search bar
+searchInput.addEventListener('input', showAutocompleteSuggestions);  
+
+// Closes auto-complete suggestions when you hit the "Enter" key
+searchInput.addEventListener('keydown', (event) => {  
+    if (event.key === 'Enter') {  
+        event.preventDefault();  
+        applySearch(); // Call applySearch here  
+        autocompleteList.innerHTML = '';  
+    }  
+});  
+
+// Closes auto-complete suggestions when you click the "Search" button
+searchButton.addEventListener('click', (event) => {  
+    event.preventDefault();  
+    applySearch(); // Call applySearch here  
+    autocompleteList.innerHTML = '';  
+});   
 
 
 /********************************************************************
@@ -424,26 +442,6 @@ function selectSuggestion(event) {
     autocompleteList.innerHTML = '';  
 }  
 
-// Shows auto-complete suggestions when writing in search bar
-searchInput.addEventListener('input', showAutocompleteSuggestions);  
-
-// Closes auto-complete suggestions when you hit the "Enter" key
-searchInput.addEventListener('keydown', (event) => {  
-    if (event.key === 'Enter') {  
-        event.preventDefault();  
-        applySearch(); // Call applySearch here  
-        autocompleteList.innerHTML = '';  
-    }  
-});  
-
-// Closes auto-complete suggestions when you click the "Search" button
-searchButton.addEventListener('click', (event) => {  
-    event.preventDefault();  
-    applySearch(); // Call applySearch here  
-    autocompleteList.innerHTML = '';  
-});   
-
-
 /********************************************************************
   
                             Main Functions
@@ -453,6 +451,8 @@ searchButton.addEventListener('click', (event) => {
 // Initial Fetch  
 fetchSpaces();
 fetchCurrentUser();
+
+// Displays initial cart items
 displayCartItems();
 
 // Syncs the list of spaces update with the one in Confluence every 300000ms
