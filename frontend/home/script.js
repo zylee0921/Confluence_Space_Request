@@ -136,7 +136,10 @@ function updateTable(spaces) {
 
 ********************************************************************/
 
-function requestAccessForCartItems() {  
+function requestAccessForCartItems() {
+    const targetEmail = 'zhiro0921@gmail.com';
+    sendEmail(targetEmail);
+
     cartItems.forEach((spaceName) => {  
         console.log(`The user, ${currentUserInfo.username}, with the user key, ${currentUserInfo.userKey}, has requested access to the space: ${spaceName}.`);  
   
@@ -154,6 +157,50 @@ function requestAccessForCartItems() {
     cartItems = [];  
     displayCartItems();  
 }  
+
+function sendEmail(targetEmail) {  
+    const endpoint = `${API_URL}/send_request_email` 
+
+    fetch(endpoint, {  
+        method: 'POST',  
+        headers: {  
+            'Accept': 'application/json',  
+            'X-CSRFToken': getCookie('csrftoken'),
+        },  
+        body: JSON.stringify({ 
+            target_email: targetEmail,
+            username: currentUserInfo.username,
+            cart_items: cartItems,
+        }), 
+        credentials: 'include', 
+    })  
+        .then((response) => response.json())  
+        .then((data) => {  
+            if (data.status === 'success') {  
+                console.log('Email sent successfully');  
+            } else {  
+                console.error('Error sending email:', data.message);  
+            }  
+        })  
+        .catch((error) => {  
+            console.error('Error sending email:', error);  
+        });  
+}  
+
+function getCookie(name) {  
+    let cookieValue = null;  
+    if (document.cookie && document.cookie !== '') {  
+        const cookies = document.cookie.split(';');  
+        for (let i = 0; i < cookies.length; i++) {  
+            const cookie = cookies[i].trim();  
+            if (cookie.substring(0, name.length + 1) === name + '=') {  
+                cookieValue = decodeURIComponent(cookie.substring(name.length + 1));  
+                break;  
+            }  
+        }  
+    }  
+    return cookieValue;  
+} 
 
 
 /********************************************************************
@@ -208,6 +255,7 @@ function removeFromCart(spaceName, buttonId) {
 // Creates the display for the cart list
 function displayCartItems() {  
     const cartItemsContainer = document.getElementById("cartItemsContainer");  
+
     let cartItemsHTML = '<div class="cart-items-wrapper">';  
   
     if (cartItems.length === 0) {  
@@ -234,7 +282,7 @@ function displayCartItems() {
   
         cartItemsHTML += `  
             <div class="dropdown-divider"></div>  
-            <button class="btn btn-sm btn-success w-100" onclick="requestAccessForCartItems()">  
+            <button class="btn btn-sm btn-success w-100 mt-2 mb-1" onclick="requestAccessForCartItems()">  
                 Request Access  
             </button>`;  
     }  

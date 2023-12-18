@@ -12,6 +12,8 @@ https://docs.djangoproject.com/en/5.0/ref/settings/
 
 from pathlib import Path
 from decouple import config  
+from corsheaders.defaults import default_headers  
+
   
 CONFLUENCE_USERNAME = config('CONFLUENCE_USERNAME')  
 CONFLUENCE_PASSWORD = config('CONFLUENCE_PASSWORD') 
@@ -58,12 +60,23 @@ MIDDLEWARE = [
 
 ROOT_URLCONF = 'main.urls'
 CORS_URLS_REGEX = r"^/api/.*"
-CORS_ALLOWED_ORIGINS = []
+CORS_ALLOWED_ORIGINS = [
+    "http://localhost:8111",
+]
 
 if DEBUG:
     CORS_ALLOWED_ORIGINS = [
         'http://localhost:8111',
     ]
+
+CORS_ALLOW_CREDENTIALS = True 
+
+# CORS_ALLOW_ALL_ORIGINS = True  
+# CORS_ALLOW_HEADERS = list(default_headers) + [  
+#     'X-CSRFToken',  
+# ]  
+
+CSRF_TRUSTED_ORIGINS = ['http://localhost:8111']  
 
 TEMPLATES = [
     {
@@ -135,4 +148,11 @@ STATIC_URL = 'static/'
 # https://docs.djangoproject.com/en/5.0/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+EMAIL_HOST = 'smtp@gmail.com'
+EMAIL_PORT = 587
+EMAIL_USE_TLS = True
+EMAIL_HOST_USER = 'zyamd0921@gmail.com'
+EMAIL_HOST_PASSWORD = 'CvarManiac'
 

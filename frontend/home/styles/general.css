@@ -152,6 +152,7 @@ tbody tr:nth-child(even) {
     padding: 0.5rem;  
     margin-left: 10px;
     margin-right: 10px;
+    max-height: 400px;
 } 
 
 .cart-item {  
@@ -172,4 +173,13 @@ tbody tr:nth-child(even) {
     margin-left: 155px;  
     margin-bottom: 0.5rem;  
     opacity: 25%;
+}  
+
+button.disabled, button[disabled] {  
+    cursor: default;  
+}  
+
+button.disabled:focus, button[disabled]:focus {  
+    outline: none;  
+    box-shadow: none;  
 }  
