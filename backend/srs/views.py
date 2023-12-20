@@ -33,6 +33,7 @@ def get_spaces(request):
         return JsonResponse(data)    
     except json.decoder.JSONDecodeError:    
         return JsonResponse({"error": "Failed to parse JSON"}, status=500)  
+    
 
 # To get current user, "https://confluence-dev.amd.com/rest/api/user/current"
 
@@ -61,7 +62,9 @@ def get_current_user(request):
         return JsonResponse(data)    
     except json.decoder.JSONDecodeError:    
         return JsonResponse({"error": "Failed to parse JSON"}, status=500)  
-    
+
+
+# Function used to send email
 def send_request_email(request):    
     # Testing  
     print(f"Request method: {request.method}")  

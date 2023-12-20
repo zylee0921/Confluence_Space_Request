@@ -17,6 +17,8 @@ from corsheaders.defaults import default_headers
   
 CONFLUENCE_USERNAME = config('CONFLUENCE_USERNAME')  
 CONFLUENCE_PASSWORD = config('CONFLUENCE_PASSWORD') 
+PERSONAL_HOST = config('PERSONAL_HOST')
+PERSONAL_EMAIL = config('PERSONAL_EMAIL')
 PERSONAL_PASSWORD = config('PERSONAL_PASSWORD')
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
@@ -77,8 +79,8 @@ CSRF_TRUSTED_ORIGINS = ['http://localhost:8111']
 # EMAIL_PORT = 587
 
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'  
-EMAIL_HOST = 'atlsmtp10.amd.com'
-EMAIL_HOST_USER = 'zhiyolee@amd.com'
+EMAIL_HOST = PERSONAL_HOST
+EMAIL_HOST_USER = PERSONAL_EMAIL
 EMAIL_HOST_PASSWORD = PERSONAL_PASSWORD
 EMAIL_PORT = 25
 EMAIL_USE_TLS = True
