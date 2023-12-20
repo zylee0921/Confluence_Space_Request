@@ -20,6 +20,7 @@ CONFLUENCE_PASSWORD = config('CONFLUENCE_PASSWORD')
 PERSONAL_HOST = config('PERSONAL_HOST')
 PERSONAL_EMAIL = config('PERSONAL_EMAIL')
 PERSONAL_PASSWORD = config('PERSONAL_PASSWORD')
+DJANGO_KEY = config('DJANGO_KEY')
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -29,7 +30,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/5.0/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-lj#!g$l0%1yuqocch^^sa29(znxm)*m0%jdt4&^uf9#g-2944*'
+SECRET_KEY = DJANGO_KEY
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
