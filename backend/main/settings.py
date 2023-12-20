@@ -12,9 +12,12 @@ https://docs.djangoproject.com/en/5.0/ref/settings/
 
 from pathlib import Path
 from decouple import config  
+from corsheaders.defaults import default_headers  
+
   
 CONFLUENCE_USERNAME = config('CONFLUENCE_USERNAME')  
 CONFLUENCE_PASSWORD = config('CONFLUENCE_PASSWORD') 
+PERSONAL_PASSWORD = config('PERSONAL_PASSWORD')
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -58,12 +61,38 @@ MIDDLEWARE = [
 
 ROOT_URLCONF = 'main.urls'
 CORS_URLS_REGEX = r"^/api/.*"
-CORS_ALLOWED_ORIGINS = []
 
 if DEBUG:
     CORS_ALLOWED_ORIGINS = [
         'http://localhost:8111',
     ]
+
+CORS_ALLOW_CREDENTIALS = True  
+
+CSRF_TRUSTED_ORIGINS = ['http://localhost:8111']  
+
+# EMAIL_HOST = 'sandbox.smtp.mailtrap.io'
+# EMAIL_HOST_USER = '4c8ee30470db53'
+# EMAIL_HOST_PASSWORD = '638ae164beab35'
+# EMAIL_PORT = 587
+
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'  
+EMAIL_HOST = 'atlsmtp10.amd.com'
+EMAIL_HOST_USER = 'zhiyolee@amd.com'
+EMAIL_HOST_PASSWORD = PERSONAL_PASSWORD
+EMAIL_PORT = 25
+EMAIL_USE_TLS = True
+EMAIL_USE_SSL = False
+
+# Python Shell Test Case
+# from django.core.mail import send_mail  
+  
+# subject = 'Test Email'  
+# message = 'This is a test email.'  
+# from_email = 'noreply-confluence@amd.com'  
+# to_email = 'zhiyolee@amd.com'
+  
+# send_mail('Test Email', 'This is a test email.', 'zhiyolee@amd.com', ['zhiyolee@amd.com'])
 
 TEMPLATES = [
     {
@@ -134,5 +163,6 @@ STATIC_URL = 'static/'
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.0/ref/settings/#default-auto-field
 
-DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'  
+
 
