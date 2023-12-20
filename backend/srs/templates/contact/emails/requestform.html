@@ -1,0 +1,54 @@
+<!DOCTYPE html>  
+<html>  
+<head>  
+    <style>  
+        table {  
+            width: 100%;  
+            border-collapse: collapse;  
+        }  
+        th, td {  
+            padding: 15px;  
+            text-align: left;  
+            border-bottom: 1px solid #ddd;  
+        }  
+        th {  
+            background-color: #4CAF50;  
+            color: white;  
+        }  
+    </style>  
+</head>  
+
+<body>  
+  
+<h2>Request Access to Space</h2>  
+  
+<p><b>Username: </b>{{ username }}</p>  
+<p><b>Requesting for access to the following spaces: </b></p>  
+  
+<table>  
+    <tr>  
+        <th>Cart Items</th> 
+        <th>Space Permissions</th> 
+    </tr> 
+
+    {% for space in cart_items %}  
+        <tr>  
+            <td>
+                {{ space.name }}  
+            </td>
+
+            <td>
+                <a href="https://confluence-dev.amd.com/spaces/spacepermissions.action?key={{ space.key }}" target="_blank">View Permissions</a>  
+            </td>
+        </tr>  
+    {% endfor %}
+
+    {% comment %} {% for item in cart_items %}  
+        <tr>  
+            <td>{{ item }}</td>  
+        </tr>  
+    {% endfor %} {% endcomment %}
+</table>  
+  
+</body>  
+</html>  

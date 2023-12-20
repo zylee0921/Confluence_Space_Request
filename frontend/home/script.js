@@ -128,79 +128,6 @@ function updateTable(spaces) {
     // Update the pagination  
     displayPageNumbers(spaces.length);  
 }  
- 
-
-/********************************************************************
-  
-                           Request Functions
-
-********************************************************************/
-
-function requestAccessForCartItems() {
-    const targetEmail = 'zhiro0921@gmail.com';
-    sendEmail(targetEmail);
-
-    cartItems.forEach((spaceName) => {  
-        console.log(`The user, ${currentUserInfo.username}, with the user key, ${currentUserInfo.userKey}, has requested access to the space: ${spaceName}.`);  
-  
-        // Find the space in fetchedSpaces and set its requested property to true  
-        fetchedSpaces.find((space) => space.name === spaceName).requested = true;  
-  
-        // Remove the item from the cart list  
-        removeFromCart(spaceName, null);  
-    });  
-  
-    // Update the main list to show the disabled buttons  
-    updateTable(currentSpaces);  
-  
-    // Clear the cart list  
-    cartItems = [];  
-    displayCartItems();  
-}  
-
-function sendEmail(targetEmail) {  
-    const endpoint = `${API_URL}/send_request_email` 
-
-    fetch(endpoint, {  
-        method: 'POST',  
-        headers: {  
-            'Accept': 'application/json',  
-            'X-CSRFToken': getCookie('csrftoken'),
-        },  
-        body: JSON.stringify({ 
-            target_email: targetEmail,
-            username: currentUserInfo.username,
-            cart_items: cartItems,
-        }), 
-        credentials: 'include', 
-    })  
-        .then((response) => response.json())  
-        .then((data) => {  
-            if (data.status === 'success') {  
-                console.log('Email sent successfully');  
-            } else {  
-                console.error('Error sending email:', data.message);  
-            }  
-        })  
-        .catch((error) => {  
-            console.error('Error sending email:', error);  
-        });  
-}  
-
-function getCookie(name) {  
-    let cookieValue = null;  
-    if (document.cookie && document.cookie !== '') {  
-        const cookies = document.cookie.split(';');  
-        for (let i = 0; i < cookies.length; i++) {  
-            const cookie = cookies[i].trim();  
-            if (cookie.substring(0, name.length + 1) === name + '=') {  
-                cookieValue = decodeURIComponent(cookie.substring(name.length + 1));  
-                break;  
-            }  
-        }  
-    }  
-    return cookieValue;  
-} 
 
 
 /********************************************************************
@@ -292,28 +219,117 @@ function displayCartItems() {
 }  
 
 // Removes item from cart list
-function removeItemFromCart(spaceName, event) {  
-    event.stopPropagation();
-
-    removeFromCart(spaceName, null);  
-    displayCartItems();
+function removeFromCart(spaceName, buttonId) {    
+    cartItems = cartItems.filter((item) => item !== spaceName);    
+    displayCartItems();    
     
-    // Find the index of the space in the currentSpaces array  
-    const spaceIndex = currentSpaces.findIndex((space) => space.name === spaceName);  
+    fetchedSpaces.find((space) => space.name === spaceName).inCart = false;    
     
-    // If the space is found in the currentSpaces array, update the button state  
-    if (spaceIndex !== -1) {  
-        const buttonId = `addToCartButton-${spaceIndex}`;  
-        const button = document.getElementById(buttonId);  
-        
+    if (!buttonId) {    
+        // Find the index of the space in the currentSpaces array    
+        const spaceIndex = currentSpaces.findIndex((space) => space.name === spaceName);    
+    
+        // If the space is found in the currentSpaces array, update the button state    
+        if (spaceIndex !== -1) {    
+            buttonId = `addToCartButton-${spaceIndex}`;    
+        }    
+    }    
+    
+    if (buttonId) {    
+        const button = document.getElementById(buttonId);    
         if (button) {  
-            button.innerHTML = '<i class="bi bi-cart-plus"></i> Add to Cart';  
-            button.classList.remove("btn-danger");  
-            button.classList.add("btn-info");  
-            button.onclick = () => addToCart(spaceName, buttonId);  
+            button.innerHTML = '<i class="bi bi-cart-plus"></i> Add to Cart';    
+            button.classList.remove("btn-danger");    
+            button.classList.add("btn-info");    
+            button.onclick = () => addToCart(spaceName, buttonId);    
+        }  
+    }    
+} 
+
+
+/********************************************************************
+  
+                           Request Functions
+
+********************************************************************/
+
+function sendEmail(targetEmail) {  
+    const endpoint = `${API_URL}/send_request_email` 
+
+    const requestData = {  
+        target_email: targetEmail,  
+        username: currentUserInfo.username,  
+        cart_items: cartItems.map(item => {  
+            const space = fetchedSpaces.find(space => space.name === item);  
+            return { name: item, key: space.key };  
+        }), 
+    };  
+
+    console.log('Request data:', requestData); 
+
+    fetch(endpoint, {  
+        method: 'POST',  
+        headers: {  
+            'Content-Type': 'application/json',  
+            'X-CSRFToken': getCookie('csrftoken'),
+        },  
+        body: JSON.stringify(requestData), 
+        credentials: 'include', 
+    })  
+        .then((response) => {  
+            console.log("Response received:", response);
+            return response.json();  
+        })
+        .then((data) => {  
+            if (data.status === 'success') {  
+                console.log('Email sent successfully');  
+            } else {  
+                console.error('Error sending email:', data.message);  
+            }  
+        })  
+        .catch((error) => {  
+            console.error('Error sending email:', error);  
+        });  
+}  
+
+
+function getCookie(name) {  
+    let cookieValue = null;  
+    if (document.cookie && document.cookie !== '') {  
+        const cookies = document.cookie.split(';');  
+        for (let i = 0; i < cookies.length; i++) {  
+            const cookie = cookies[i].trim();  
+            if (cookie.substring(0, name.length + 1) === name + '=') {  
+                cookieValue = decodeURIComponent(cookie.substring(name.length + 1));  
+                break;  
+            }  
         }  
     }  
+    return cookieValue;  
 } 
+
+function requestAccessForCartItems() {  
+    const targetEmail = 'zhiyolee@amd.com';  
+    sendEmail(targetEmail);  
+  
+    cartItems.forEach((spaceName) => {    
+        console.log(`The user, ${currentUserInfo.username}, with the user key, ${currentUserInfo.userKey}, has requested access to the space: ${spaceName}.`);    
+    
+        // Find the space in fetchedSpaces and set its requested property to true    
+        fetchedSpaces.find((space) => space.name === spaceName).requested = true;    
+    
+        // Remove the item from the cart list    
+        removeFromCart(spaceName, null);    
+    });    
+    
+    // Update the main list to show the disabled buttons    
+    changePage(currentPage); // Call changePage with the current page number  
+    
+    // Clear the cart list    
+    cartItems = [];    
+    displayCartItems();    
+}  
+
 
 
 /********************************************************************

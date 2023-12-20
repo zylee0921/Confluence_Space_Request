@@ -1,9 +1,10 @@
 import json  
 import requests  
 from requests.auth import HTTPBasicAuth  
-from django.http import JsonResponse  
+from django.http import JsonResponse, HttpResponse
 from django.conf import settings  
 from django.core.mail import send_mail  
+from django.template.loader import render_to_string
 
 # Permission/Authentication/Certification Stuff
 auth = HTTPBasicAuth(settings.CONFLUENCE_USERNAME, settings.CONFLUENCE_PASSWORD)  
@@ -61,43 +62,38 @@ def get_current_user(request):
     except json.decoder.JSONDecodeError:    
         return JsonResponse({"error": "Failed to parse JSON"}, status=500)  
     
-# def send_request_email(request):  
-#     if request.method == 'POST':  
-#         cart_items = request.POST.getlist('cart_items[]')  
-#         username = request.POST.get('username')  
+def send_request_email(request):    
+    # Testing  
+    print(f"Request method: {request.method}")  
   
-#         subject = 'Request Access to Spaces'  
-#         message = f'The user with email {username} has requested access to the following spaces:\n\n'  
-#         message += '\n'.join(cart_items)  
+    if request.method == 'POST':   
+        data = json.loads(request.body)    
+        target_email = data.get('target_email')    
+        username = data.get('username')    
+        cart_items = data.get('cart_items')   
+          
+        subject = 'Request Access'    
+        message = f'The user with email {username} has requested access to the following spaces:\n\n'   
+        message += '\n'.join([f"{item['name']} (Key: {item['key']})" for item in cart_items])  
+        from_email = 'zhiyolee@amd.com'   
   
-#         try:  
-#             send_mail(
-#                 subject, 
-#                 message, 
-#                 settings.EMAIL_HOST_USER, 
-#                 ["zhiyolee@amd.com"], 
-#                 fail_silently=False)  
-#             return JsonResponse({'status': 'success', 'message': 'Email sent successfully'})  
-#         except Exception as e:  
-#             return JsonResponse({'status': 'error', 'message': f'Error sending email: {e}'})  
-#     else:  
-#         return JsonResponse({'status': 'error', 'message': 'Invalid request method'})  
-    
-def send_request_email(request):  
-    if request.method == 'POST': 
-        target_email = request.POST.get('target_email') 
-        username = request.POST.get('username')  
-        cart_items = request.POST.getlist('cart_items[]')  
-        
-        subject = 'Request Access'  
-        message = f'The user with email {username} has requested access to the following spaces:\n\n' 
-        message += '\n'.join(cart_items)
-        from_email = 'zyamd0921@gmail.com'  
-    
-        try:  
-            send_mail(subject, message, from_email, [target_email])  
-            return JsonResponse({'status': 'success', 'message': 'Email sent successfully'})   
-        except Exception as e:  
-            return JsonResponse({'status': 'error', 'message': f'Error sending email: {e}'}) 
-    else:  
-        return JsonResponse({'status': 'error', 'message': 'Invalid request method'})  
+        html = render_to_string('contact/emails/requestform.html', {  
+            'username': username,  
+            'cart_items': cart_items,  
+        })  
+  
+        # Testing  
+        print(f"Username: {username}")    
+        print(f"Cart items: {cart_items}")    
+        print(html)  
+      
+        try:                  
+            send_mail(subject, message, from_email, [target_email], html_message=html)    
+            print("Email sent successfully")  
+            return JsonResponse({'status': 'success', 'message': 'Email sent successfully'})       
+        except Exception as e:    
+            print(f"Error sending email: {e}")   
+            return JsonResponse({'status': 'error', 'message': f'Error sending email: {e}'})    
+    else:    
+        return JsonResponse({'status': 'error', 'message': 'This endpoint only accepts POST requests'})    
+
