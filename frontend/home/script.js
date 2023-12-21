@@ -46,6 +46,33 @@ function fetchCurrentUser() {
 
 /********************************************************************
   
+                       Gets current user's groups
+
+********************************************************************/
+let currentUserGroups = [];
+
+function fetchCurrentUserGroups() {
+    const endpoint = `${API_URL}/groups`
+
+    fetch(endpoint)    
+        .then(response => {    
+            if (!response.ok) {    
+                throw new Error('Network response was not ok');    
+            }    
+            return response.json();    
+        })    
+        .then(data => {    
+            currentUserGroups = data;  
+            console.log(currentUserGroups.user_groups)  
+        })    
+        .catch(error => {    
+            console.error('Error fetching current user:', error);    
+        });  
+}
+
+
+/********************************************************************
+  
                            Gets list of spaces
 
 ********************************************************************/
@@ -523,6 +550,7 @@ function selectSuggestion(event) {
 // Initial Fetch  
 fetchSpaces();
 fetchCurrentUser();
+fetchCurrentUserGroups();
 
 // Displays initial cart items
 displayCartItems();
