@@ -49,6 +49,7 @@ function fetchCurrentUser() {
                        Gets current user's groups
 
 ********************************************************************/
+
 let currentUserGroups = [];
 
 function fetchCurrentUserGroups() {
@@ -162,6 +163,7 @@ function updateTable(spaces) {
                             Cart Functions
 
 ********************************************************************/
+
 let cartItems = [];
 
 // Add space to cart list
@@ -206,6 +208,14 @@ function removeFromCart(spaceName, buttonId) {
     }  
 }  
 
+// Removes item from cart list for cancel button in cart list
+function removeItemFromCart(spaceName, event) {  
+    event.stopPropagation();
+
+    removeFromCart(spaceName, null);  
+    displayCartItems();
+} 
+
 // Creates the display for the cart list
 function displayCartItems() {  
     const cartItemsContainer = document.getElementById("cartItemsContainer");  
@@ -245,42 +255,6 @@ function displayCartItems() {
     cartItemsContainer.innerHTML = cartItemsHTML;  
 }  
 
-// Removes item from cart list for cancel button in cart list
-function removeItemFromCart(spaceName, event) {  
-    event.stopPropagation();
-
-    removeFromCart(spaceName, null);  
-    displayCartItems();
-}
-
-// Removes item from cart list for cancel button in space list
-function removeFromCart(spaceName, buttonId) {    
-    cartItems = cartItems.filter((item) => item !== spaceName);    
-    displayCartItems();    
-    
-    fetchedSpaces.find((space) => space.name === spaceName).inCart = false;    
-    
-    if (!buttonId) {    
-        // Find the index of the space in the currentSpaces array    
-        const spaceIndex = currentSpaces.findIndex((space) => space.name === spaceName);    
-    
-        // If the space is found in the currentSpaces array, update the button state    
-        if (spaceIndex !== -1) {    
-            buttonId = `addToCartButton-${spaceIndex}`;    
-        }    
-    }    
-    
-    if (buttonId) {    
-        const button = document.getElementById(buttonId);    
-        if (button) {  
-            button.innerHTML = '<i class="bi bi-cart-plus"></i> Add to Cart';    
-            button.classList.remove("btn-danger");    
-            button.classList.add("btn-info");    
-            button.onclick = () => addToCart(spaceName, buttonId);    
-        }  
-    }    
-} 
-
 
 /********************************************************************
   
@@ -315,13 +289,14 @@ function sendEmail(targetEmail) {
             console.log("Response received:", response);
             return response.json();  
         })
-        .then((data) => {  
-            if (data.status === 'success') {  
+        .then((data) => {    
+            if (data.status === 'success') {    
                 console.log('Email sent successfully');  
-            } else {  
-                console.error('Error sending email:', data.message);  
-            }  
-        })  
+                displaySuccessMessage();
+            } else {    
+                console.error('Error sending email:', data.message);    
+            }    
+        })   
         .catch((error) => {  
             console.error('Error sending email:', error);  
         });  
@@ -343,6 +318,7 @@ function getCookie(name) {
     return cookieValue;  
 } 
 
+// Request access for the spaces in the cart
 function requestAccessForCartItems() {  
     const targetEmail = 'zhiyolee@amd.com';  
     sendEmail(targetEmail);  
@@ -365,6 +341,33 @@ function requestAccessForCartItems() {
     displayCartItems();    
 }  
 
+// Displays a success message upon requesting access
+function displaySuccessMessage() {  
+    const successMessageContainer = document.getElementById("successMessageContainer");  
+  
+    let successMessageHTML = `  
+        <div class="alert alert-success" role="alert" style="position: fixed; top: -100px; left: 50%; transform: translateX(-50%); z-index: 9999; animation: slide-down 1s forwards, slide-up 1s 4s forwards;">  
+            Email sent successfully!  
+        </div>  
+        <style>  
+            @keyframes slide-down {  
+                0% { top: -100px; }  
+                100% { top: 20px; }  
+            }  
+            @keyframes slide-up {  
+                0% { top: 20px; }  
+                100% { top: -100px; }  
+            }  
+        </style>  
+    `;  
+  
+    successMessageContainer.innerHTML = successMessageHTML;  
+  
+    // Remove the success message after 5 seconds  
+    setTimeout(() => {  
+        successMessageContainer.innerHTML = '';  
+    }, 5000);  
+}
 
 
 /********************************************************************
@@ -556,7 +559,7 @@ fetchCurrentUserGroups();
 displayCartItems();
 
 // Syncs the list of spaces update with the one in Confluence every 300000ms
-setInterval(fetchSpaces, 300000);  
+// setInterval(fetchSpaces, 300000);  
 
 displayPageNumbers(fetchedSpaces.length);
 
