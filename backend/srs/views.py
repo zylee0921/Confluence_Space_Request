@@ -64,29 +64,35 @@ def get_current_user(request):
         return JsonResponse({"error": "Failed to parse JSON"}, status=500)  
 
 
-# Retrieves the list of groups
-def get_groups(request):
-    url = "https://confluence-dev.amd.com/rest/api/group?limit=5000"
-    headers = {    
-        "Accept": "application/json"    
-    }    
-  
-    try:  
-        get_response = requests.get(    
-            url,    
-            headers=headers,    
-            auth=auth,    
-            verify=CERTIFICATE_PATH
-        )    
-        get_response.raise_for_status()  
-    except requests.exceptions.RequestException as e:  
-        return JsonResponse({"error": f"Failed to fetch groups data from Confluence API: {e}"}, status=500)  
-  
-    try:    
-        data = json.loads(get_response.text)    
-        return JsonResponse(data)    
-    except json.decoder.JSONDecodeError:    
-        return JsonResponse({"error": "Failed to parse JSON"}, status=500)
+# Retrieves the list of groups that the current user is part of
+def get_current_user_groups(request):      
+    user_data = json.loads(get_current_user(request).content)      
+    username = user_data['username']  
+    
+    url = "https://confluence-dev.amd.com/rest/api/user/memberof?username={}".format(username)      
+    headers = {      
+        "Accept": "application/json"      
+    }      
+      
+    try:      
+        get_response = requests.get(      
+            url,      
+            headers=headers,      
+            auth=auth,      
+            verify=CERTIFICATE_PATH      
+        )      
+        get_response.raise_for_status()      
+    except requests.exceptions.RequestException as e:      
+        return JsonResponse({"error": f"Failed to fetch user groups from Confluence API: {e}"}, status=500)      
+      
+    try:      
+        data = json.loads(get_response.text)   
+        user_groups = [group['name'] for group in data['results']]  # Update this line based on the API response structure  
+        return JsonResponse({"user_groups": user_groups})      
+    except json.decoder.JSONDecodeError:      
+        return JsonResponse({"error": "Failed to parse JSON"}, status=500)  
+
+
 
 
 # Function used to send email
