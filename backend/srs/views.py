@@ -22,7 +22,7 @@ def get_spaces(request):
             url,    
             headers=headers,    
             auth=auth,    
-            verify=CERTIFICATE_PATH  # Add certification verification in the future
+            verify=CERTIFICATE_PATH
         )    
         get_response.raise_for_status()  
     except requests.exceptions.RequestException as e:  
@@ -41,7 +41,7 @@ def get_spaces(request):
 
 # Retrieves the current logged-in user information
 def get_current_user(request):    
-    url = "https://confluence-dev.amd.com/rest/api/user/current" # Might need to update this later
+    url = "https://confluence-dev.amd.com/rest/api/user/current" # Might need to update this later for normal users
     headers = {    
         "Accept": "application/json"    
     }    
@@ -51,7 +51,7 @@ def get_current_user(request):
             url,    
             headers=headers,    
             auth=auth,    
-            verify=CERTIFICATE_PATH  # Add certification verification in the future
+            verify=CERTIFICATE_PATH
         )    
         get_response.raise_for_status()  
     except requests.exceptions.RequestException as e:  
@@ -62,6 +62,31 @@ def get_current_user(request):
         return JsonResponse(data)    
     except json.decoder.JSONDecodeError:    
         return JsonResponse({"error": "Failed to parse JSON"}, status=500)  
+
+
+# Retrieves the list of groups
+def get_groups(request):
+    url = "https://confluence-dev.amd.com/rest/api/group?limit=5000"
+    headers = {    
+        "Accept": "application/json"    
+    }    
+  
+    try:  
+        get_response = requests.get(    
+            url,    
+            headers=headers,    
+            auth=auth,    
+            verify=CERTIFICATE_PATH
+        )    
+        get_response.raise_for_status()  
+    except requests.exceptions.RequestException as e:  
+        return JsonResponse({"error": f"Failed to fetch groups data from Confluence API: {e}"}, status=500)  
+  
+    try:    
+        data = json.loads(get_response.text)    
+        return JsonResponse(data)    
+    except json.decoder.JSONDecodeError:    
+        return JsonResponse({"error": "Failed to parse JSON"}, status=500)
 
 
 # Function used to send email

@@ -218,7 +218,15 @@ function displayCartItems() {
     cartItemsContainer.innerHTML = cartItemsHTML;  
 }  
 
-// Removes item from cart list
+// Removes item from cart list for cancel button in cart list
+function removeItemFromCart(spaceName, event) {  
+    event.stopPropagation();
+
+    removeFromCart(spaceName, null);  
+    displayCartItems();
+}
+
+// Removes item from cart list for cancel button in space list
 function removeFromCart(spaceName, buttonId) {    
     cartItems = cartItems.filter((item) => item !== spaceName);    
     displayCartItems();    
