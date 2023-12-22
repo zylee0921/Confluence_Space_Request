@@ -93,8 +93,6 @@ def get_current_user_groups(request):
         return JsonResponse({"error": "Failed to parse JSON"}, status=500)  
 
 
-
-
 # Function used to send email
 def send_request_email(request):    
     # Testing  

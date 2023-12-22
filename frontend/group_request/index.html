@@ -24,19 +24,26 @@
 <body>
 
     <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
-        <a class="navbar-brand" href="">Space Directory</a>
+        <a class="navbar-brand" href="">Space Domain</a>
         <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarText" aria-controls="navbarText" aria-expanded="false" aria-label="Toggle navigation">
             <span class="navbar-toggler-icon"></span>
         </button>
 
         <div class="collapse navbar-collapse" id="navbarText">
             <ul class="navbar-nav mr-auto">
-                <!-- Navbar items -->  
+                <!-- Navbar items -->
+                <li class="nav-item">
+                    <a class="nav-link" href="../user_request/">User Request</a>
+                </li>  
+
+                <li class="nav-item active">
+                    <a class="nav-link" href="../group_request/">Group Request <span class="sr-only">(current)</span></a>
+                </li>
             </ul>
         </div>
 
         <div class="dropdown">  
-            <button class="btn btn-outline-success my-2 my-sm-0 dropdown-toggle" type="button" id="cartDropdown" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">  
+            <button class="btn btn-outline-success2 my-2 my-sm-0 dropdown-toggle" type="button" id="cartDropdown" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">  
                 View Cart  
             </button>  
             <div class="dropdown-menu dropdown-menu-right" aria-labelledby="cartDropdown" id="cartItemsContainer">  
@@ -48,14 +55,14 @@
     <div id="successMessageContainer"></div>
 
     <div class="container">  
-        <h1 class="my-4">Spaces List</h1>  
+        <h1 class="my-4">Space List: Group Request</h1>  
 
         <form id="search-form" method="GET">    
             <div class="input-group mb-4">    
                 <div class="input-group">    
                     <label for="search"></label> 
                     <input type="text" class="form-control" id="search" placeholder="Type here..." required autocomplete="off">    
-                    <button type="submit" class="btn btn-primary" id="search-button">Search</button>  
+                    <button type="submit" class="btn btn-success" id="search-button">Search</button>  
                     <button type="button" class="btn btn-reset" id="reset-button">&times;</button>        
                     <div id="autocomplete-list" class="autocomplete-items"></div>           
                 </div>     

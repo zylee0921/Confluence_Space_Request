@@ -134,7 +134,7 @@ function updateTable(spaces) {
         // If not request and not in cart
         } else {  
             buttonIcon = 'bi-cart-plus';  
-            buttonClass = 'btn-info';  
+            buttonClass = 'btn-info2';  
             buttonAction = `addToCart('${space.name}', '${buttonId}')`;  
             buttonText = ' Add to Cart';  
         }  
@@ -176,7 +176,7 @@ function addToCart(spaceName, buttonId) {
         
         const button = document.getElementById(buttonId);  
         button.innerHTML = '<i class="bi bi-cart-x"></i> Cancel';  
-        button.classList.remove("btn-info");  
+        button.classList.remove("btn-info2");  
         button.classList.add("btn-danger");  
         button.onclick = () => removeFromCart(spaceName, buttonId);  
     }  
@@ -203,7 +203,7 @@ function removeFromCart(spaceName, buttonId) {
         const button = document.getElementById(buttonId);  
         button.innerHTML = '<i class="bi bi-cart-plus"></i> Add to Cart';  
         button.classList.remove("btn-danger");  
-        button.classList.add("btn-info");  
+        button.classList.add("btn-info2");  
         button.onclick = () => addToCart(spaceName, buttonId);  
     }  
 }  
@@ -246,7 +246,7 @@ function displayCartItems() {
   
         cartItemsHTML += `  
             <div class="dropdown-divider"></div>  
-            <button class="btn btn-sm btn-success w-100 mt-2 mb-1" onclick="requestAccessForCartItems()">  
+            <button class="btn btn-sm btn-info2 w-100 mt-2 mb-1" onclick="requestAccessForCartItems()">  
                 Request Access  
             </button>`;  
     }  
@@ -546,7 +546,7 @@ function selectSuggestion(event) {
 
 /********************************************************************
   
-                            Main Functions
+                           Initial Functions
 
 ********************************************************************/
 
