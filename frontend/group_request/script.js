@@ -96,6 +96,8 @@ function fetchSpaces() {
             fetchedSpaces = data.results.map((space) => ({ ...space, inCart: false }));  
             currentSpaces = fetchedSpaces;  
             changePage(1);  
+            displayCartItems();
+            displayPageNumbers(fetchedSpaces.length);
         }) 
         .catch(error => {    
             console.error('Error fetching spaces:', error);    
@@ -226,7 +228,7 @@ function displayCartItems() {
         cartItemsHTML += `  
             <ul class="list-group text-center">  
                 <div>  
-                    <img src="icons/empty-cart.png" alt="Empty Cart" class="empty-cart-image" />  
+                    <img src="../icons/empty-cart.png" alt="Empty Cart" class="empty-cart-image" />  
                 </div>  
                 <br>  
                 The cart is currently empty.  
@@ -555,11 +557,6 @@ fetchSpaces();
 fetchCurrentUser();
 fetchCurrentUserGroups();
 
-// Displays initial cart items
-displayCartItems();
-
 // Syncs the list of spaces update with the one in Confluence every 300000ms
 // setInterval(fetchSpaces, 300000);  
-
-displayPageNumbers(fetchedSpaces.length);
 

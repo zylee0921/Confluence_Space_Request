@@ -46,34 +46,6 @@ function fetchCurrentUser() {
 
 /********************************************************************
   
-                       Gets current user's groups
-
-********************************************************************/
-
-let currentUserGroups = [];
-
-function fetchCurrentUserGroups() {
-    const endpoint = `${API_URL}/groups`
-
-    fetch(endpoint)    
-        .then(response => {    
-            if (!response.ok) {    
-                throw new Error('Network response was not ok');    
-            }    
-            return response.json();    
-        })    
-        .then(data => {    
-            currentUserGroups = data;  
-            console.log(currentUserGroups.user_groups)  
-        })    
-        .catch(error => {    
-            console.error('Error fetching current user:', error);    
-        });  
-}
-
-
-/********************************************************************
-  
                            Gets list of spaces
 
 ********************************************************************/
@@ -82,25 +54,28 @@ let fetchedSpaces = [];
 
 let currentSpaces = [];  
   
-function fetchSpaces() {    
-    const endpoint = `${API_URL}/spaces`    
-    
-    fetch(endpoint)    
-        .then(response => {    
-            if (!response.ok) {    
-                throw new Error('Network response was not ok');    
-            }    
-            return response.json();    
-        })    
-        .then((data) => {  
-            fetchedSpaces = data.results.map((space) => ({ ...space, inCart: false }));  
-            currentSpaces = fetchedSpaces;  
-            changePage(1);  
-        }) 
-        .catch(error => {    
-            console.error('Error fetching spaces:', error);    
-        });    
-}  
+function fetchSpaces() {      
+    const endpoint = `${API_URL}/spaces`      
+      
+    fetch(endpoint)      
+        .then(response => {      
+            if (!response.ok) {      
+                throw new Error('Network response was not ok');      
+            }      
+            return response.json();      
+        })      
+        .then((data) => {    
+            fetchedSpaces = data.results.map((space) => ({ ...space, inCart: false }));    
+            currentSpaces = fetchedSpaces;    
+            changePage(1);    
+            displayCartItems();
+            displayPageNumbers(fetchedSpaces.length);
+        })   
+        .catch(error => {      
+            console.error('Error fetching spaces:', error);      
+        });      
+}    
+
 
 
 /********************************************************************
@@ -226,7 +201,7 @@ function displayCartItems() {
         cartItemsHTML += `  
             <ul class="list-group text-center">  
                 <div>  
-                    <img src="icons/empty-cart.png" alt="Empty Cart" class="empty-cart-image" />  
+                    <img src="../icons/empty-cart.png" alt="Empty Cart" class="empty-cart-image" />  
                 </div>  
                 <br>  
                 The cart is currently empty.  
@@ -555,11 +530,6 @@ fetchSpaces();
 fetchCurrentUser();
 fetchCurrentUserGroups();
 
-// Displays initial cart items
-displayCartItems();
-
 // Syncs the list of spaces update with the one in Confluence every 300000ms
 // setInterval(fetchSpaces, 300000);  
-
-displayPageNumbers(fetchedSpaces.length);
 
