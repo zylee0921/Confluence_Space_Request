@@ -24,6 +24,7 @@ const itemsPerPage = 20;
 
 let currentUserInfo = [];
 
+// Fetches the current user from Confluence
 function fetchCurrentUser() {
     const endpoint = `${API_URL}/current`
 
@@ -52,6 +53,7 @@ function fetchCurrentUser() {
 
 let currentUserGroups = [];
 
+// Fetches the list of groups from Confluence
 function fetchCurrentUserGroups() {
     const endpoint = `${API_URL}/groups`
 
@@ -73,6 +75,7 @@ function fetchCurrentUserGroups() {
         });  
 }
 
+// Populates the group select dropdown
 function populateGroupSelect() {  
     const groupSelect = document.getElementById('groupSelect');  
   
@@ -83,14 +86,6 @@ function populateGroupSelect() {
         groupSelect.appendChild(option);  
     });  
 }   
-  
-function handleGroupSelectChange() {  
-    const groupSelect = document.getElementById('groupSelect');  
-    const selectedGroupIndex = groupSelect.value;  
-    const selectedGroupName = currentUserGroups.user_groups[selectedGroupIndex];  
-  
-    // Do something with the selected group name...  
-}
 
 
 /********************************************************************
@@ -102,7 +97,8 @@ function handleGroupSelectChange() {
 let fetchedSpaces = [];  
 
 let currentSpaces = [];  
-  
+
+// Fetches the list of spaces from Confluence
 function fetchSpaces() {    
     const endpoint = `${API_URL}/spaces`    
     
@@ -134,6 +130,7 @@ function fetchSpaces() {
 
 let currentPage = 1;  
 
+// Updates the table with the list of spaces
 function updateTable(spaces) {  
     let tableRows = '';  
   
@@ -281,6 +278,7 @@ function displayCartItems() {
 
 ********************************************************************/
 
+// Sends an email to the target email
 function sendEmail(targetEmail) {    
     const endpoint = `${API_URL}/send_request_email`   
   
@@ -327,7 +325,7 @@ function sendEmail(targetEmail) {
         });    
 }  
 
-
+// Gets the CSRF token from the cookie
 function getCookie(name) {  
     let cookieValue = null;  
     if (document.cookie && document.cookie !== '') {  
@@ -483,12 +481,14 @@ function changePage(page) {
 
 ********************************************************************/
 
+// Searches for spaces
 function searchSpaces(searchInput) {  
     return fetchedSpaces.filter(space => {  
         return space.name.toLowerCase().includes(searchInput.toLowerCase());  
     });  
 }  
-  
+
+// Searches for spaces when you hit the "Enter" key
 searchForm.addEventListener('submit', (event) => {  
     event.preventDefault();  
     const searchInput = document.getElementById('search').value;  
@@ -496,6 +496,7 @@ searchForm.addEventListener('submit', (event) => {
     updateTable(filteredSpaces);  
 }); 
 
+// Searches for spaces when you click the "Search" button
 function applySearch() {  
     const searchValue = searchInput.value;  
     filteredSpaces = fetchedSpaces.filter(space => {  
@@ -530,7 +531,8 @@ searchButton.addEventListener('click', (event) => {
                             Reset Search
 
 ********************************************************************/
-  
+
+// Resets the search bar
 resetButton.addEventListener('click', () => {  
     document.getElementById('search').value = '';  
     autocompleteList.innerHTML = '';  
@@ -545,6 +547,7 @@ resetButton.addEventListener('click', () => {
 
 ********************************************************************/
 
+// Shows autocomplete suggestions
 function showAutocompleteSuggestions() {  
     const searchValue = searchInput.value;  
     if (searchValue === '') {  
@@ -563,7 +566,8 @@ function showAutocompleteSuggestions() {
   
     autocompleteList.innerHTML = suggestionsHTML;  
 }  
-  
+
+// Selects the suggestion
 function selectSuggestion(event) {  
     searchInput.value = event.target.textContent;  
     autocompleteList.innerHTML = '';  
