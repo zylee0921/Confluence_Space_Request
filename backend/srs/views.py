@@ -94,38 +94,50 @@ def get_current_user_groups(request):
 
 
 # Function used to send email
-def send_request_email(request):    
-    # Testing  
-    print(f"Request method: {request.method}")  
-  
-    if request.method == 'POST':   
-        data = json.loads(request.body)    
-        target_email = data.get('target_email')    
-        username = data.get('username')    
-        cart_items = data.get('cart_items')   
-          
-        subject = 'Request Access'    
-        message = f'The user with email {username} has requested access to the following spaces:\n\n'   
-        message += '\n'.join([f"{item['name']} (Key: {item['key']})" for item in cart_items])  
-        from_email = 'zhiyolee@amd.com'   
-  
-        html = render_to_string('contact/emails/requestform.html', {  
-            'username': username,  
-            'cart_items': cart_items,  
-        })  
-  
-        # Testing  
-        print(f"Username: {username}")    
-        print(f"Cart items: {cart_items}")    
-        print(html)  
-      
-        try:                  
-            send_mail(subject, message, from_email, [target_email], html_message=html)    
-            print("Email sent successfully")  
-            return JsonResponse({'status': 'success', 'message': 'Email sent successfully'})       
-        except Exception as e:    
-            print(f"Error sending email: {e}")   
-            return JsonResponse({'status': 'error', 'message': f'Error sending email: {e}'})    
-    else:    
-        return JsonResponse({'status': 'error', 'message': 'This endpoint only accepts POST requests'})    
+def send_request_email(request):      
+    # Testing    
+    print(f"Request method: {request.method}")    
+    
+    if request.method == 'POST':     
+        data = json.loads(request.body)      
+        target_email = data.get('target_email')      
+        username = data.get('username')      
+        cart_items = data.get('cart_items')    
+        group = data.get('group')
+            
+        subject = 'Request Access'      
+        if group:  
+            message = f'The user, {username}, has requested access for the group, {group}, to the following spaces:\n\n'     
+        else:  
+            message = f'The user, {username}, has requested access to the following spaces:\n\n'     
+        message += '\n'.join([f"{item['name']} (Key: {item['key']})" for item in cart_items])    
+        from_email = 'zhiyolee@amd.com'     
 
+        if group:
+            html = render_to_string('contact/emails/groupform.html', {    
+                'username': username,    
+                'group': group,
+                'cart_items': cart_items,    
+            })    
+        else:
+            html = render_to_string('contact/emails/requestform.html', {    
+                'username': username,    
+                'cart_items': cart_items,    
+            })    
+    
+        # Testing    
+        print(f"Username: {username}")      
+        if group:  
+            print(f"Group: {group}")
+        print(f"Cart items: {cart_items}")      
+        print(html)    
+        
+        try:                    
+            send_mail(subject, message, from_email, [target_email], html_message=html)      
+            print("Email sent successfully")    
+            return JsonResponse({'status': 'success', 'message': 'Email sent successfully'})         
+        except Exception as e:      
+            print(f"Error sending email: {e}")     
+            return JsonResponse({'status': 'error', 'message': f'Error sending email: {e}'})      
+    else:      
+        return JsonResponse({'status': 'error', 'message': 'This endpoint only accepts POST requests'})    

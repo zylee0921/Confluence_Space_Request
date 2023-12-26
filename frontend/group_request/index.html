@@ -42,6 +42,14 @@
             </ul>
         </div>
 
+        <!-- Select menu for groups -->  
+        <li class="nav-item">  
+            <select class="form-select p-2 mr-5 rounded" id="groupSelect" onchange="handleGroupSelectChange()">  
+                <option selected>[ Select your group here ]</option>
+                <!-- Group options will be added here dynamically -->  
+            </select>  
+        </li> 
+
         <div class="dropdown">  
             <button class="btn btn-outline-success2 my-2 my-sm-0 dropdown-toggle" type="button" id="cartDropdown" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">  
                 View Cart  

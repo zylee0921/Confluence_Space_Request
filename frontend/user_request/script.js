@@ -91,17 +91,11 @@ function updateTable(spaces) {
   
     spaces.forEach((space, index) => {  
         const buttonId = `addToCartButton-${index}`;  
-        const buttonDisabled = space.requested ? ' disabled' : '';  
+        // const buttonDisabled = space.requested ? ' disabled' : '';  
         let buttonIcon, buttonClass, buttonAction, buttonText;  
   
-        // If already requested
-        if (space.requested) {  
-            buttonIcon = '';  
-            buttonClass = 'btn-secondary';  
-            buttonAction = '';  
-            buttonText = 'Requested';  
         // If already in cart
-        } else if (space.inCart) {  
+        if (space.inCart) {  
             buttonIcon = 'bi-cart-x';  
             buttonClass = 'btn-danger';  
             buttonAction = `removeFromCart('${space.name}', '${buttonId}')`;  
@@ -118,7 +112,7 @@ function updateTable(spaces) {
             <tr>  
                 <td>${space.name}</td>  
                 <td class="button-column">  
-                <button class="btn btn-sm ${buttonClass}${buttonDisabled}" id="${buttonId}" onclick="${buttonAction}">  
+                <button class="btn btn-sm ${buttonClass}" id="${buttonId}" onclick="${buttonAction}">  
                     <i class="bi ${buttonIcon}"></i>${buttonText}  
                 </button>  
                 </td>  
@@ -158,30 +152,34 @@ function addToCart(spaceName, buttonId) {
 } 
 
 // Remove space from cart list and updates cancel button in main list
-function removeFromCart(spaceName, buttonId) {  
-    cartItems = cartItems.filter((item) => item !== spaceName);  
-    displayCartItems();  
-  
-    fetchedSpaces.find((space) => space.name === spaceName).inCart = false;  
-  
-    if (!buttonId) {  
-        // Find the index of the space in the currentSpaces array  
-        const spaceIndex = currentSpaces.findIndex((space) => space.name === spaceName);  
-  
-        // If the space is found in the currentSpaces array, update the button state  
-        if (spaceIndex !== -1) {  
-            buttonId = `addToCartButton-${spaceIndex}`;  
-        }  
-    }  
-  
+function removeFromCart(spaceName, buttonId) {    
+    cartItems = cartItems.filter((item) => item !== spaceName);    
+    displayCartItems();    
+    
+    fetchedSpaces.find((space) => space.name === spaceName).inCart = false;    
+    
+    if (!buttonId) {    
+        // Find the index of the space in the currentSpaces array    
+        const spaceIndex = currentSpaces.findIndex((space) => space.name === spaceName);    
+    
+        // If the space is found in the currentSpaces array, update the button state    
+        if (spaceIndex !== -1) {    
+            buttonId = `addToCartButton-${spaceIndex}`;    
+        }    
+    }    
+    
     if (buttonId) {  
         const button = document.getElementById(buttonId);  
-        button.innerHTML = '<i class="bi bi-cart-plus"></i> Add to Cart';  
-        button.classList.remove("btn-danger");  
-        button.classList.add("btn-info");  
-        button.onclick = () => addToCart(spaceName, buttonId);  
-    }  
+        // Check if the button exists before updating its properties  
+        if (button) {  
+            button.innerHTML = '<i class="bi bi-cart-plus"></i> Add to Cart';    
+            button.classList.remove("btn-danger");    
+            button.classList.add("btn-info2");    
+            button.onclick = () => addToCart(spaceName, buttonId);  
+        }  
+    }    
 }  
+ 
 
 // Removes item from cart list for cancel button in cart list
 function removeItemFromCart(spaceName, event) {  
@@ -528,7 +526,6 @@ function selectSuggestion(event) {
 // Initial Fetch  
 fetchSpaces();
 fetchCurrentUser();
-fetchCurrentUserGroups();
 
 // Syncs the list of spaces update with the one in Confluence every 300000ms
 // setInterval(fetchSpaces, 300000);  
