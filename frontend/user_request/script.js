@@ -174,7 +174,7 @@ function removeFromCart(spaceName, buttonId) {
         if (button) {  
             button.innerHTML = '<i class="bi bi-cart-plus"></i> Add to Cart';    
             button.classList.remove("btn-danger");    
-            button.classList.add("btn-info2");    
+            button.classList.add("btn-info");    
             button.onclick = () => addToCart(spaceName, buttonId);  
         }  
     }    
