@@ -203,16 +203,3 @@ button.disabled:focus, button[disabled]:focus {
     outline: none;  
     box-shadow: none;  
 }  
-
-.image-user {
-    width: 200px;
-    height: 200px; 
-    margin-top: 11px;
-    margin-bottom: 10px;
-}
-
-.image-group {
-    width: 210px; 
-    height: 210px;  
-    margin-top: 10px;
-}

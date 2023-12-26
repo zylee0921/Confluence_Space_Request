@@ -46,33 +46,6 @@ function fetchCurrentUser() {
 
 /********************************************************************
   
-                       Gets current user's groups
-
-********************************************************************/
-let currentUserGroups = [];
-
-function fetchCurrentUserGroups() {
-    const endpoint = `${API_URL}/groups`
-
-    fetch(endpoint)    
-        .then(response => {    
-            if (!response.ok) {    
-                throw new Error('Network response was not ok');    
-            }    
-            return response.json();    
-        })    
-        .then(data => {    
-            currentUserGroups = data;  
-            console.log(currentUserGroups.user_groups)  
-        })    
-        .catch(error => {    
-            console.error('Error fetching current user:', error);    
-        });  
-}
-
-
-/********************************************************************
-  
                            Gets list of spaces
 
 ********************************************************************/
@@ -81,25 +54,28 @@ let fetchedSpaces = [];
 
 let currentSpaces = [];  
   
-function fetchSpaces() {    
-    const endpoint = `${API_URL}/spaces`    
-    
-    fetch(endpoint)    
-        .then(response => {    
-            if (!response.ok) {    
-                throw new Error('Network response was not ok');    
-            }    
-            return response.json();    
-        })    
-        .then((data) => {  
-            fetchedSpaces = data.results.map((space) => ({ ...space, inCart: false }));  
-            currentSpaces = fetchedSpaces;  
-            changePage(1);  
-        }) 
-        .catch(error => {    
-            console.error('Error fetching spaces:', error);    
-        });    
-}  
+function fetchSpaces() {      
+    const endpoint = `${API_URL}/spaces`      
+      
+    fetch(endpoint)      
+        .then(response => {      
+            if (!response.ok) {      
+                throw new Error('Network response was not ok');      
+            }      
+            return response.json();      
+        })      
+        .then((data) => {    
+            fetchedSpaces = data.results.map((space) => ({ ...space, inCart: false }));    
+            currentSpaces = fetchedSpaces;    
+            changePage(1);    
+            displayCartItems();
+            displayPageNumbers(fetchedSpaces.length);
+        })   
+        .catch(error => {      
+            console.error('Error fetching spaces:', error);      
+        });      
+}    
+
 
 
 /********************************************************************
@@ -115,17 +91,11 @@ function updateTable(spaces) {
   
     spaces.forEach((space, index) => {  
         const buttonId = `addToCartButton-${index}`;  
-        const buttonDisabled = space.requested ? ' disabled' : '';  
+        // const buttonDisabled = space.requested ? ' disabled' : '';  
         let buttonIcon, buttonClass, buttonAction, buttonText;  
   
-        // If already requested
-        if (space.requested) {  
-            buttonIcon = '';  
-            buttonClass = 'btn-secondary';  
-            buttonAction = '';  
-            buttonText = 'Requested';  
         // If already in cart
-        } else if (space.inCart) {  
+        if (space.inCart) {  
             buttonIcon = 'bi-cart-x';  
             buttonClass = 'btn-danger';  
             buttonAction = `removeFromCart('${space.name}', '${buttonId}')`;  
@@ -142,7 +112,7 @@ function updateTable(spaces) {
             <tr>  
                 <td>${space.name}</td>  
                 <td class="button-column">  
-                <button class="btn btn-sm ${buttonClass}${buttonDisabled}" id="${buttonId}" onclick="${buttonAction}">  
+                <button class="btn btn-sm ${buttonClass}" id="${buttonId}" onclick="${buttonAction}">  
                     <i class="bi ${buttonIcon}"></i>${buttonText}  
                 </button>  
                 </td>  
@@ -162,6 +132,7 @@ function updateTable(spaces) {
                             Cart Functions
 
 ********************************************************************/
+
 let cartItems = [];
 
 // Add space to cart list
@@ -181,30 +152,42 @@ function addToCart(spaceName, buttonId) {
 } 
 
 // Remove space from cart list and updates cancel button in main list
-function removeFromCart(spaceName, buttonId) {  
-    cartItems = cartItems.filter((item) => item !== spaceName);  
-    displayCartItems();  
-  
-    fetchedSpaces.find((space) => space.name === spaceName).inCart = false;  
-  
-    if (!buttonId) {  
-        // Find the index of the space in the currentSpaces array  
-        const spaceIndex = currentSpaces.findIndex((space) => space.name === spaceName);  
-  
-        // If the space is found in the currentSpaces array, update the button state  
-        if (spaceIndex !== -1) {  
-            buttonId = `addToCartButton-${spaceIndex}`;  
-        }  
-    }  
-  
+function removeFromCart(spaceName, buttonId) {    
+    cartItems = cartItems.filter((item) => item !== spaceName);    
+    displayCartItems();    
+    
+    fetchedSpaces.find((space) => space.name === spaceName).inCart = false;    
+    
+    if (!buttonId) {    
+        // Find the index of the space in the currentSpaces array    
+        const spaceIndex = currentSpaces.findIndex((space) => space.name === spaceName);    
+    
+        // If the space is found in the currentSpaces array, update the button state    
+        if (spaceIndex !== -1) {    
+            buttonId = `addToCartButton-${spaceIndex}`;    
+        }    
+    }    
+    
     if (buttonId) {  
         const button = document.getElementById(buttonId);  
-        button.innerHTML = '<i class="bi bi-cart-plus"></i> Add to Cart';  
-        button.classList.remove("btn-danger");  
-        button.classList.add("btn-info");  
-        button.onclick = () => addToCart(spaceName, buttonId);  
-    }  
+        // Check if the button exists before updating its properties  
+        if (button) {  
+            button.innerHTML = '<i class="bi bi-cart-plus"></i> Add to Cart';    
+            button.classList.remove("btn-danger");    
+            button.classList.add("btn-info");    
+            button.onclick = () => addToCart(spaceName, buttonId);  
+        }  
+    }    
 }  
+ 
+
+// Removes item from cart list for cancel button in cart list
+function removeItemFromCart(spaceName, event) {  
+    event.stopPropagation();
+
+    removeFromCart(spaceName, null);  
+    displayCartItems();
+} 
 
 // Creates the display for the cart list
 function displayCartItems() {  
@@ -216,7 +199,7 @@ function displayCartItems() {
         cartItemsHTML += `  
             <ul class="list-group text-center">  
                 <div>  
-                    <img src="icons/empty-cart.png" alt="Empty Cart" class="empty-cart-image" />  
+                    <img src="../icons/empty-cart.png" alt="Empty Cart" class="empty-cart-image" />  
                 </div>  
                 <br>  
                 The cart is currently empty.  
@@ -236,7 +219,7 @@ function displayCartItems() {
   
         cartItemsHTML += `  
             <div class="dropdown-divider"></div>  
-            <button class="btn btn-sm btn-success w-100 mt-2 mb-1" onclick="requestAccessForCartItems()">  
+            <button class="btn btn-sm btn-info w-100 mt-2 mb-1" onclick="requestAccessForCartItems()">  
                 Request Access  
             </button>`;  
     }  
@@ -244,42 +227,6 @@ function displayCartItems() {
     cartItemsHTML += '</div>';  
     cartItemsContainer.innerHTML = cartItemsHTML;  
 }  
-
-// Removes item from cart list for cancel button in cart list
-function removeItemFromCart(spaceName, event) {  
-    event.stopPropagation();
-
-    removeFromCart(spaceName, null);  
-    displayCartItems();
-}
-
-// Removes item from cart list for cancel button in space list
-function removeFromCart(spaceName, buttonId) {    
-    cartItems = cartItems.filter((item) => item !== spaceName);    
-    displayCartItems();    
-    
-    fetchedSpaces.find((space) => space.name === spaceName).inCart = false;    
-    
-    if (!buttonId) {    
-        // Find the index of the space in the currentSpaces array    
-        const spaceIndex = currentSpaces.findIndex((space) => space.name === spaceName);    
-    
-        // If the space is found in the currentSpaces array, update the button state    
-        if (spaceIndex !== -1) {    
-            buttonId = `addToCartButton-${spaceIndex}`;    
-        }    
-    }    
-    
-    if (buttonId) {    
-        const button = document.getElementById(buttonId);    
-        if (button) {  
-            button.innerHTML = '<i class="bi bi-cart-plus"></i> Add to Cart';    
-            button.classList.remove("btn-danger");    
-            button.classList.add("btn-info");    
-            button.onclick = () => addToCart(spaceName, buttonId);    
-        }  
-    }    
-} 
 
 
 /********************************************************************
@@ -315,13 +262,14 @@ function sendEmail(targetEmail) {
             console.log("Response received:", response);
             return response.json();  
         })
-        .then((data) => {  
-            if (data.status === 'success') {  
+        .then((data) => {    
+            if (data.status === 'success') {    
                 console.log('Email sent successfully');  
-            } else {  
-                console.error('Error sending email:', data.message);  
-            }  
-        })  
+                displaySuccessMessage();
+            } else {    
+                console.error('Error sending email:', data.message);    
+            }    
+        })   
         .catch((error) => {  
             console.error('Error sending email:', error);  
         });  
@@ -343,6 +291,7 @@ function getCookie(name) {
     return cookieValue;  
 } 
 
+// Request access for the spaces in the cart
 function requestAccessForCartItems() {  
     const targetEmail = 'zhiyolee@amd.com';  
     sendEmail(targetEmail);  
@@ -365,6 +314,33 @@ function requestAccessForCartItems() {
     displayCartItems();    
 }  
 
+// Displays a success message upon requesting access
+function displaySuccessMessage() {  
+    const successMessageContainer = document.getElementById("successMessageContainer");  
+  
+    let successMessageHTML = `  
+        <div class="alert alert-success" role="alert" style="position: fixed; top: -100px; left: 50%; transform: translateX(-50%); z-index: 9999; animation: slide-down 1s forwards, slide-up 1s 4s forwards;">  
+            Email sent successfully!  
+        </div>  
+        <style>  
+            @keyframes slide-down {  
+                0% { top: -100px; }  
+                100% { top: 20px; }  
+            }  
+            @keyframes slide-up {  
+                0% { top: 20px; }  
+                100% { top: -100px; }  
+            }  
+        </style>  
+    `;  
+  
+    successMessageContainer.innerHTML = successMessageHTML;  
+  
+    // Remove the success message after 5 seconds  
+    setTimeout(() => {  
+        successMessageContainer.innerHTML = '';  
+    }, 5000);  
+}
 
 
 /********************************************************************
@@ -543,20 +519,14 @@ function selectSuggestion(event) {
 
 /********************************************************************
   
-                            Main Functions
+                           Initial Functions
 
 ********************************************************************/
 
 // Initial Fetch  
 fetchSpaces();
 fetchCurrentUser();
-fetchCurrentUserGroups();
-
-// Displays initial cart items
-displayCartItems();
 
 // Syncs the list of spaces update with the one in Confluence every 300000ms
-setInterval(fetchSpaces, 300000);  
-
-displayPageNumbers(fetchedSpaces.length);
+// setInterval(fetchSpaces, 300000);  
 
