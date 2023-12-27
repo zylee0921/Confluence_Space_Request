@@ -14,7 +14,7 @@ CERTIFICATE_PATH = '../certfile.crt'
 
 # Retrieves the list of spaces
 def get_spaces(request): 
-    # The Confluence Rest API has a limit of showiung 500 results   
+    # The Confluence Rest API has a limit of showing 500 results   
     limit = 500  
     start = 0  
     all_spaces = []  
@@ -58,7 +58,7 @@ def get_spaces(request):
 
 # To get the whole list of members, "https://confluence-dev.amd.com/rest/api/group/confluence-users/member"
 
-# Retrieves the current logged-in user information
+# Retrieves the current user information
 def get_current_user(request):  
     if request.method == 'POST':  
         try:  
@@ -104,8 +104,14 @@ def get_current_user(request):
 
 # Retrieves the list of groups that the current user is part of
 def get_current_user_groups(request):      
-    user_data = json.loads(get_current_user(request).content)      
-    username = user_data['username']  
+    if request.method == 'POST':  
+        try:  
+            data = json.loads(request.body)  
+            username = data.get('username')  
+        except json.decoder.JSONDecodeError:  
+            return JsonResponse({"error": "Failed to parse JSON"}, status=500)  
+    else:  
+        username = request.GET.get('username')   
     
     url = "https://confluence-dev.amd.com/rest/api/user/memberof?username={}".format(username)      
     headers = {      
@@ -196,7 +202,6 @@ def grant_permission(request):
     if group_name:  
         print(f"Group Name: {group_name}")  
     print(f"Space Key: {space_key}")   
-
   
     # Define the Confluence REST API endpoint for updating space permissions  
     space_permissions_url = f"https://confluence-dev.amd.com/rest/api/space/{space_key}/permission"  
@@ -209,25 +214,23 @@ def grant_permission(request):
                 "identifier": group_name  
             },  
             "operation": {  
-                "key": "administer",  
+                "key": "read",  
                 "target": "page"  
             },  
             "_links": {}  
         }  
     else:  
         permission_data = {  
-            "subject": {  
-                "type": "user",  
-                "identifier": user_key  
-            },  
-            "operation": {  
-                "key": "administer",  
-                "target": "page"  
-            },  
+            "subject": {
+                "type": "user",
+                "identifier": user_key
+            },
+            "operation": {
+                "key": "read",
+                "target": "space"
+            },
             "_links": {}  
         }  
- 
-
 
     # Send a POST request to the Confluence REST API to update the space permissions  
     response = requests.post(  
