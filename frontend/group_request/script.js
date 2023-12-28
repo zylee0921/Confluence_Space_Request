@@ -79,6 +79,14 @@ fetchUserInfoButton.addEventListener('click', () => {
         });  
 });  
 
+// Add an enter keydown event listener to the fetch user info button
+usernameInput.addEventListener('keydown', (event) => {  
+    if (event.key === 'Enter') {  
+        event.preventDefault();  
+        fetchUserInfoButton.click();  
+    }  
+})
+
 // Notifies user to input a username before fetching
 function displayInputUsernameNotification() {  
     const inputUsernameContainer = document.getElementById("notificationContainer");  
@@ -660,6 +668,13 @@ searchButton.addEventListener('click', (event) => {
     autocompleteList.innerHTML = '';  
 });   
 
+// Automatically perform a search when a suggestion is clicked
+function selectSuggestion(event) {    
+    searchInput.value = event.target.textContent;    
+    autocompleteList.innerHTML = '';    
+    applySearch();  
+}  
+
 
 /********************************************************************
   
@@ -702,10 +717,11 @@ function showAutocompleteSuggestions() {
     autocompleteList.innerHTML = suggestionsHTML;  
 }  
 
-// Selects the suggestion
+// Selects the suggestion  
 function selectSuggestion(event) {  
     searchInput.value = event.target.textContent;  
     autocompleteList.innerHTML = '';  
+    applySearch(); // Automatically trigger the search when a suggestion is clicked  
 }  
 
 /********************************************************************
