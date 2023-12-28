@@ -13,7 +13,8 @@ const searchInput = document.getElementById('search');
 const searchButton = document.getElementById('search-button');  
 const autocompleteList = document.getElementById('autocomplete-list'); 
 const pagination = document.getElementById('pagination');  
-const itemsPerPage = 20;   
+const itemsPerPage = 24;
+
 
 
 /********************************************************************
@@ -24,25 +25,150 @@ const itemsPerPage = 20;
 
 let currentUserInfo = [];
 
-// Fetches the current user's information
-function fetchCurrentUser() {
-    const endpoint = `${API_URL}/current`
+// Get the username input element and the fetch user info button  
+const usernameInput = document.getElementById('usernameInput');  
+const fetchUserInfoButton = document.getElementById('fetchUserInfoButton');  
+  
+// Add a click event listener to the fetch user info button  
+fetchUserInfoButton.addEventListener('click', () => {  
+    // Check if the username is provided  
+    if (!usernameInput.value) {  
+        displayInputUsernameNotification();  
+        return;  
+    }
 
-    fetch(endpoint)    
-        .then(response => {    
-            if (!response.ok) {    
-                throw new Error('Network response was not ok');    
-            }    
-            return response.json();    
-        })    
-        .then(data => {    
-            currentUserInfo = data;  
-            console.log(`Username: ${currentUserInfo.username}\nUserkey: ${currentUserInfo.userKey}`)  
-        })    
-        .catch(error => {    
-            console.error('Error fetching current user:', error);    
+    const endpoint = `${API_URL}/current`;  
+    
+    const requestData = {  
+        username: usernameInput.value,  
+    };  
+    
+    // Fetch user information based on the provided username  
+    fetch(endpoint, {  
+        method: 'POST',  
+        headers: {  
+        'Content-Type': 'application/json',  
+        'X-CSRFToken': getCookie('csrftoken'),  
+        },  
+        body: JSON.stringify(requestData),  
+        credentials: 'include',  
+    })  
+        .then((response) => {  
+        if (!response.ok) {  
+            return response.json().then((errorData) => {  
+            throw new Error(errorData.error);  
+            });  
+        }  
+        return response.json();  
+        })  
+        .then((data) => {  
+            // Handle the fetched user information  
+            console.log(data);
+            currentUserInfo = data; 
+            
+            // Display a success notification when the username is valid  
+            displayValidUsername();  
+        })  
+        .catch((error) => {  
+            console.error('Error fetching user information:', error);  
+        
+            // Display a notification when the username is invalid  
+            displayInvalidUsername();
         });  
+});  
+
+// Add an enter keydown event listener to the fetch user info button
+usernameInput.addEventListener('keydown', (event) => {  
+    if (event.key === 'Enter') {  
+        event.preventDefault();  
+        fetchUserInfoButton.click();  
+    }  
+})
+
+// Notifies user to input a username before fetching
+function displayInputUsernameNotification() {  
+    const inputUsernameContainer = document.getElementById("notificationContainer");  
+    
+    let inputUsernameHTML = `  
+          <div class="alert alert-warning" role="alert" style="position: fixed; top: -100px; left: 50%; transform: translateX(-50%); z-index: 9999; animation: slide-down 1s forwards, slide-up 1s 4s forwards;">  
+              Please input a username!  
+          </div>  
+          <style>  
+              @keyframes slide-down {  
+                  0% { top: -100px; }  
+                  100% { top: 20px; }  
+              }  
+              @keyframes slide-up {  
+                  0% { top: 20px; }  
+                  100% { top: -100px; }  
+              }  
+          </style>  
+      `;  
+    
+    inputUsernameContainer.innerHTML = inputUsernameHTML;  
+    
+    // Remove the message after 5 seconds  
+    setTimeout(() => {  
+        inputUsernameContainer.innerHTML = "";  
+    }, 3000);  
+} 
+
+// Displays a success message upon requesting access with valid username
+function displayValidUsername() {  
+    const validUsernameContainer = document.getElementById("notificationContainer");  
+    
+    let validUsernameHTML = `  
+          <div class="alert alert-success" role="alert" style="position: fixed; top: -100px; left: 50%; transform: translateX(-50%); z-index: 9999; animation: slide-down 1s forwards, slide-up 1s 4s forwards;">  
+              Username is valid.
+          </div>  
+          <style>  
+              @keyframes slide-down {  
+                  0% { top: -100px; }  
+                  100% { top: 20px; }  
+              }  
+              @keyframes slide-up {  
+                  0% { top: 20px; }  
+                  100% { top: -100px; }  
+              }  
+          </style>  
+      `;  
+    
+    validUsernameContainer.innerHTML = validUsernameHTML;  
+    
+    // Remove the message after 5 seconds  
+    setTimeout(() => {  
+      validUsernameContainer.innerHTML = "";  
+    }, 3000);  
+  } 
+
+// Displays a success message upon requesting access
+function displayInvalidUsername() {  
+    const invalidUsernameContainer = document.getElementById("notificationContainer");  
+  
+    let invalidUsernameHTML = `  
+        <div class="alert alert-danger" role="alert" style="position: fixed; top: -100px; left: 50%; transform: translateX(-50%); z-index: 9999; animation: slide-down 1s forwards, slide-up 1s 4s forwards;">  
+            Please insert a valid username!  
+        </div>  
+        <style>  
+            @keyframes slide-down {  
+                0% { top: -100px; }  
+                100% { top: 20px; }  
+            }  
+            @keyframes slide-up {  
+                0% { top: 20px; }  
+                100% { top: -100px; }  
+            }  
+        </style>  
+    `;  
+  
+    invalidUsernameContainer.innerHTML = invalidUsernameHTML;  
+  
+    // Remove the message after 5 seconds  
+    setTimeout(() => {  
+        invalidUsernameContainer.innerHTML = '';  
+    }, 3000);  
 }
+
 
 
 /********************************************************************
@@ -67,8 +193,12 @@ function fetchSpaces() {
             return response.json();      
         })      
         .then((data) => {    
-            fetchedSpaces = data.results.map((space) => ({ ...space, inCart: false }));    
-            currentSpaces = fetchedSpaces;    
+            if (Array.isArray(data)) {  
+                fetchedSpaces = data.map((space) => ({ ...space, inCart: false }));  
+                currentSpaces = fetchedSpaces;  
+            } else {  
+                console.error('Data is not an array');  
+            }    
             changePage(1);    
             displayCartItems();
             displayPageNumbers(fetchedSpaces.length);
@@ -128,6 +258,7 @@ function updateTable(spaces) {
     // Update the pagination  
     displayPageNumbers(spaces.length);  
 }  
+
 
 
 /********************************************************************
@@ -232,6 +363,7 @@ function displayCartItems() {
 }  
 
 
+
 /********************************************************************
   
                            Request Functions
@@ -244,7 +376,8 @@ function sendEmail(targetEmail) {
 
     const requestData = {  
         target_email: targetEmail,  
-        username: currentUserInfo.username,  
+        username: currentUserInfo.username,
+        user_key: currentUserInfo.userKey,
         cart_items: cartItems.map(item => {  
             const space = fetchedSpaces.find(space => space.name === item);  
             return { name: item, key: space.key };  
@@ -298,6 +431,11 @@ function getCookie(name) {
 // Request access for the spaces in the cart
 function requestAccessForCartItems() {  
     const targetEmail = 'zhiyolee@amd.com';  
+
+    if (currentUserInfo.username == undefined) {
+        displayInputUsernameNotification();
+        return;
+    }
     sendEmail(targetEmail);  
   
     cartItems.forEach((spaceName) => {    
@@ -320,7 +458,7 @@ function requestAccessForCartItems() {
 
 // Displays a success message upon requesting access
 function displaySuccessMessage() {  
-    const successMessageContainer = document.getElementById("successMessageContainer");  
+    const successMessageContainer = document.getElementById("notificationContainer");  
   
     let successMessageHTML = `  
         <div class="alert alert-success" role="alert" style="position: fixed; top: -100px; left: 50%; transform: translateX(-50%); z-index: 9999; animation: slide-down 1s forwards, slide-up 1s 4s forwards;">  
@@ -345,6 +483,7 @@ function displaySuccessMessage() {
         successMessageContainer.innerHTML = '';  
     }, 5000);  
 }
+
 
 
 /********************************************************************
@@ -429,6 +568,7 @@ function changePage(page) {
 } 
 
 
+
 /********************************************************************
   
                            Search Functions
@@ -480,6 +620,7 @@ searchButton.addEventListener('click', (event) => {
 });   
 
 
+
 /********************************************************************
   
                             Reset Search
@@ -493,6 +634,7 @@ resetButton.addEventListener('click', () => {
     currentSpaces = fetchedSpaces;
     updateTable(fetchedSpaces);  
 });  
+
 
 
 /********************************************************************
@@ -521,11 +663,13 @@ function showAutocompleteSuggestions() {
     autocompleteList.innerHTML = suggestionsHTML;  
 }  
   
-// Selects the suggestion
+// Selects the suggestion  
 function selectSuggestion(event) {  
     searchInput.value = event.target.textContent;  
     autocompleteList.innerHTML = '';  
-}  
+    applySearch(); // Automatically trigger the search when a suggestion is clicked  
+} 
+
 
 /********************************************************************
   
@@ -535,8 +679,3 @@ function selectSuggestion(event) {
 
 // Initial Fetch  
 fetchSpaces();
-fetchCurrentUser();
-
-// Syncs the list of spaces update with the one in Confluence every 300000ms
-// setInterval(fetchSpaces, 300000);  
-

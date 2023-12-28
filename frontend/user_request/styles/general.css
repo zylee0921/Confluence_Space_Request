@@ -69,6 +69,17 @@ tbody tr:nth-child(even) {
     border-bottom-left-radius: 0;  
 } 
 
+#usernameInput {
+    border-top-right-radius: 0;  
+    border-bottom-right-radius: 0; 
+}
+
+#fetchUserInfoButton {  
+    height: 38px;
+    border-top-left-radius: 0;  
+    border-bottom-left-radius: 0;  
+} 
+
 .btn-reset {  
     background-color: transparent;  
     border: none;  

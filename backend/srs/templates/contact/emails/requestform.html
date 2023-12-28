@@ -28,7 +28,8 @@
 <table>  
     <tr>  
         <th>Cart Items</th> 
-        <th>Space Permissions</th> 
+        <th>Permissions</th> 
+        <th>Action</th> 
     </tr> 
 
     {% for space in cart_items %}  
@@ -39,6 +40,10 @@
 
             <td>
                 <a href="https://confluence-dev.amd.com/spaces/spacepermissions.action?key={{ space.key }}" target="_blank">View Permissions</a>  
+            </td>
+
+            <td>
+                <a href="http://localhost:8000/api/grant_permission?user_key={{ user_key }}&space_key={{ space.key }}" target="_blank">Give View Access</a>
             </td>
         </tr>  
     {% endfor %}

@@ -42,9 +42,12 @@
             </ul>
         </div>
 
+        <input type="text" class="form-control" id="usernameInput" placeholder="Enter username" style="width: 200px;">
+        <button type="button" class="btn btn-info2 mr-5" id="fetchUserInfoButton">Fetch</button>
+
         <!-- Select menu for groups -->  
         <li class="nav-item">  
-            <select class="form-select p-2 mr-5 rounded" id="groupSelect" onchange="handleGroupSelectChange()">  
+            <select class="form-select p-2 mr-5 rounded" id="groupSelect">  
                 <option selected>[ Select your group here ]</option>
                 <!-- Group options will be added here dynamically -->  
             </select>  
@@ -60,7 +63,7 @@
         </div> 
     </nav>
 
-    <div id="successMessageContainer"></div>
+    <div id="notificationContainer"></div>
 
     <div class="container">  
         <h1 class="my-4">Space List: Group Request</h1>  
