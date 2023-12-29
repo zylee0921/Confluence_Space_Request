@@ -157,7 +157,7 @@ def send_request_email(request):
         else:  
             message = f'The user, {username}, has requested access to the following spaces:\n\n'     
         message += '\n'.join([f"{item['name']} (Key: {item['key']})" for item in cart_items])    
-        from_email = 'zhiyolee@amd.com'     
+        from_email = settings.PERSONAL_EMAIL     
 
         if group:
             html = render_to_string('contact/emails/groupform.html', {    
@@ -227,7 +227,7 @@ def grant_permission(request):
             },
             "operation": {
                 "key": "read",
-                "target": "space"
+                "target": "page"
             },
             "_links": {}  
         }  

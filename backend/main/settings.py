@@ -74,11 +74,6 @@ CORS_ALLOW_CREDENTIALS = True
 
 CSRF_TRUSTED_ORIGINS = ['http://localhost:8111']  
 
-# EMAIL_HOST = 'sandbox.smtp.mailtrap.io'
-# EMAIL_HOST_USER = '4c8ee30470db53'
-# EMAIL_HOST_PASSWORD = '638ae164beab35'
-# EMAIL_PORT = 587
-
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'  
 EMAIL_HOST = PERSONAL_HOST
 EMAIL_HOST_USER = PERSONAL_EMAIL
@@ -86,16 +81,6 @@ EMAIL_HOST_PASSWORD = PERSONAL_PASSWORD
 EMAIL_PORT = 25
 EMAIL_USE_TLS = True
 EMAIL_USE_SSL = False
-
-# Python Shell Test Case
-# from django.core.mail import send_mail  
-  
-# subject = 'Test Email'  
-# message = 'This is a test email.'  
-# from_email = 'noreply-confluence@amd.com'  
-# to_email = 'zhiyolee@amd.com'
-  
-# send_mail('Test Email', 'This is a test email.', 'zhiyolee@amd.com', ['zhiyolee@amd.com'])
 
 TEMPLATES = [
     {
