@@ -339,32 +339,14 @@ function addToCart(spaceName, buttonId) {
 } 
 
 // Remove space from cart list and updates cancel button in main list
-function removeFromCart(spaceName, buttonId) {    
-    cartItems = cartItems.filter((item) => item !== spaceName);    
-    displayCartItems();    
-    
-    fetchedSpaces.find((space) => space.name === spaceName).inCart = false;    
-    
-    if (!buttonId) {    
-        // Find the index of the space in the currentSpaces array    
-        const spaceIndex = currentSpaces.findIndex((space) => space.name === spaceName);    
-    
-        // If the space is found in the currentSpaces array, update the button state    
-        if (spaceIndex !== -1) {    
-            buttonId = `addToCartButton-${spaceIndex}`;    
-        }    
-    }    
-    
-    if (buttonId) {  
-        const button = document.getElementById(buttonId);  
-        // Check if the button exists before updating its properties  
-        if (button) {  
-            button.innerHTML = '<i class="bi bi-cart-plus"></i> Add to Cart';    
-            button.classList.remove("btn-danger");    
-            button.classList.add("btn-info2");    
-            button.onclick = () => addToCart(spaceName, buttonId);  
-        }  
-    }    
+function removeFromCart(spaceName, buttonId) {      
+    cartItems = cartItems.filter((item) => item !== spaceName);      
+    displayCartItems();      
+      
+    fetchedSpaces.find((space) => space.name === spaceName).inCart = false;      
+      
+    // Update the main list to show the updated button state      
+    changePage(currentPage); // Call changePage with the current page number      
 } 
 
 // Removes item from cart list for cancel button in cart list
