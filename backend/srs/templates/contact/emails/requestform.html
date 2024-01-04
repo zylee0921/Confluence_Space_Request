@@ -23,13 +23,14 @@
 <h2>Request Access to Space for User</h2>  
   
 <p><b>Username: </b>{{ username }}</p>  
+<p><b>Comments: </b>{{ comments }}</p>  
 <p><b>Requesting for access to the following spaces: </b></p>  
   
 <table>  
     <tr>  
         <th>Cart Items</th> 
         <th>Permissions</th> 
-        <th>Action</th> 
+        {% comment %} <th>Action</th>  {% endcomment %}
     </tr> 
 
     {% for space in cart_items %}  
@@ -42,9 +43,9 @@
                 <a href="https://confluence-dev.amd.com/spaces/spacepermissions.action?key={{ space.key }}" target="_blank">View Permissions</a>  
             </td>
 
-            <td>
+            {% comment %} <td>
                 <a href="http://localhost:8000/api/grant_permission?user_key={{ user_key }}&space_key={{ space.key }}" target="_blank">Give View Access</a>
-            </td>
+            </td> {% endcomment %}
         </tr>  
     {% endfor %}
 </table>  

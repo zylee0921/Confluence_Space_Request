@@ -150,6 +150,7 @@ def send_request_email(request):
         user_key = data.get('user_key')      
         cart_items = data.get('cart_items')    
         group = data.get('group')
+        comments = data.get('comments')
             
         subject = 'Request Access'      
         if group:  
@@ -164,20 +165,23 @@ def send_request_email(request):
                 'username': username,
                 'user_key': user_key,    
                 'group': group,
-                'cart_items': cart_items,   
+                'cart_items': cart_items, 
+                'comments': comments,  
             })    
         else:
             html = render_to_string('contact/emails/requestform.html', {    
                 'username': username,
                 'user_key': user_key,    
-                'cart_items': cart_items,    
+                'cart_items': cart_items,  
+                'comments': comments,  
             })    
     
         # Testing    
         print(f"Username: {username}")      
         if group:  
             print(f"Group: {group}")
-        print(f"Cart items: {cart_items}")      
+        print(f"Cart items: {cart_items}")     
+        print(f"Comments: {comments}")     
         print(html)    
         
         try:                    
@@ -192,56 +196,56 @@ def send_request_email(request):
     
 
 
-# Grants permission to a user or group for a specific space
-def grant_permission(request):  
-    user_key = request.GET.get('user_key')  
-    group_name = request.GET.get('group_name')  
-    space_key = request.GET.get('space_key')   
+# # Grants permission to a user or group for a specific space
+# def grant_permission(request):  
+#     user_key = request.GET.get('user_key')  
+#     group_name = request.GET.get('group_name')  
+#     space_key = request.GET.get('space_key')   
   
-    print(f"User Key: {user_key}")  
-    if group_name:  
-        print(f"Group Name: {group_name}")  
-    print(f"Space Key: {space_key}")   
+#     print(f"User Key: {user_key}")  
+#     if group_name:  
+#         print(f"Group Name: {group_name}")  
+#     print(f"Space Key: {space_key}")   
   
-    # Define the Confluence REST API endpoint for updating space permissions  
-    space_permissions_url = f"https://confluence-dev.amd.com/rest/api/space/{space_key}/permission"  
+#     # Define the Confluence REST API endpoint for updating space permissions  
+#     space_permissions_url = f"https://confluence-dev.amd.com/rest/api/space/{space_key}/permission"  
  
-    # Set the permission data for the user or group (View for now)  
-    if group_name:  
-        permission_data = {  
-            "subject": {  
-                "type": "group",  
-                "identifier": group_name  
-            },  
-            "operation": {  
-                "key": "read",  
-                "target": "page"  
-            },  
-            "_links": {}  
-        }  
-    else:  
-        permission_data = {  
-            "subject": {
-                "type": "user",
-                "identifier": user_key
-            },
-            "operation": {
-                "key": "read",
-                "target": "page"
-            },
-            "_links": {}  
-        }  
+#     # Set the permission data for the user or group (View for now)  
+#     if group_name:  
+#         permission_data = {  
+#             "subject": {  
+#                 "type": "group",  
+#                 "identifier": group_name  
+#             },  
+#             "operation": {  
+#                 "key": "read",  
+#                 "target": "page"  
+#             },  
+#             "_links": {}  
+#         }  
+#     else:  
+#         permission_data = {  
+#             "subject": {
+#                 "type": "user",
+#                 "identifier": user_key
+#             },
+#             "operation": {
+#                 "key": "read",
+#                 "target": "page"
+#             },
+#             "_links": {}  
+#         }  
 
-    # Send a POST request to the Confluence REST API to update the space permissions  
-    response = requests.post(  
-        space_permissions_url,  
-        json=permission_data,  
-        auth=auth, 
-        verify=CERTIFICATE_PATH
-    )  
+#     # Send a POST request to the Confluence REST API to update the space permissions  
+#     response = requests.post(  
+#         space_permissions_url,  
+#         json=permission_data,  
+#         auth=auth, 
+#         verify=CERTIFICATE_PATH
+#     )  
   
-    if response.status_code == 200:  
-        return JsonResponse({"status": "success", "message": "Permission granted"})  
-    else:  
-        print(f"Confluence API error: {response.status_code} - {response.content}")  # Print the error details
-        return JsonResponse({"status": "error", "message": "Failed to grant permission"})
+#     if response.status_code == 200:  
+#         return JsonResponse({"status": "success", "message": "Permission granted"})  
+#     else:  
+#         print(f"Confluence API error: {response.status_code} - {response.content}")  # Print the error details
+#         return JsonResponse({"status": "error", "message": "Failed to grant permission"})

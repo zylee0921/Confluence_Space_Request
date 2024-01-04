@@ -322,6 +322,8 @@ function updateTable(spaces) {
 
 let cartItems = [];
 
+let commentInputValue = ''; 
+
 // Add space to cart list
 function addToCart(spaceName, buttonId) {  
     if (!cartItems.includes(spaceName)) {  
@@ -359,9 +361,15 @@ function removeItemFromCart(spaceName, event) {
 
 // Creates the display for the cart list
 function displayCartItems() {  
+    // Save the current value of the comment box before updating the cart items  
+    const commentBox = document.getElementById("commentBox");  
+    if (commentBox) {  
+        commentInputValue = commentBox.value;  
+    }  
+  
     const cartItemsContainer = document.getElementById("cartItemsContainer");  
-
-    let cartItemsHTML = '<div class="cart-items-wrapper">';  
+  
+    let cartItemsHTML = '<div class="cart-items-wrapper">'; 
   
     if (cartItems.length === 0) {  
         cartItemsHTML += `  
@@ -387,6 +395,7 @@ function displayCartItems() {
   
         cartItemsHTML += `  
             <div class="dropdown-divider"></div>  
+            <textarea id="commentBox" class="form-control" rows="3" placeholder="Add your comments here..."></textarea>
             <button class="btn btn-sm btn-info2 w-100 mt-2 mb-1" onclick="requestAccessForCartItems()">  
                 Request Access  
             </button>`;  
@@ -394,6 +403,12 @@ function displayCartItems() {
   
     cartItemsHTML += '</div>';  
     cartItemsContainer.innerHTML = cartItemsHTML;  
+
+    // Set the value of the comment box back to the stored value  
+    const newCommentBox = document.getElementById("commentBox");  
+    if (newCommentBox) {  
+        newCommentBox.value = commentInputValue;  
+    }  
 }  
 
 
@@ -406,6 +421,7 @@ function displayCartItems() {
 // Sends an email to the target email
 function sendEmail(targetEmail) {    
     const endpoint = `${API_URL}/send_request_email`   
+    const comments = document.getElementById('commentBox').value; 
   
     // Get the selected group name  
     const groupSelect = document.getElementById('groupSelect');  
@@ -414,12 +430,14 @@ function sendEmail(targetEmail) {
   
     const requestData = {    
         target_email: targetEmail,    
-        username: currentUserInfo.username,    
+        username: currentUserInfo.username,  
+        user_key: currentUserInfo.userKey,  
         group: selectedGroupName,
         cart_items: cartItems.map(item => {    
             const space = fetchedSpaces.find(space => space.name === item);    
             return { name: item, key: space.key };    
         }),   
+        comments: comments
     };    
   
     console.log('Request data:', requestData);   
@@ -469,6 +487,19 @@ function getCookie(name) {
 // Request access for the spaces in the cart
 function requestAccessForCartItems() {  
     const targetEmail = 'zhiyolee@amd.com';  
+    const comments = document.getElementById('commentBox').value;  
+
+    // Checks if comment box is empty
+    if (comments.trim() === '') {  
+        displayEmptyCommentNotification();  
+        return;  
+    } 
+
+    // Checks if user has been fetched or not
+    if (currentUserInfo.username == undefined) {
+        displayInputUsernameNotification();
+        return;
+    }
     sendEmail(targetEmail);  
   
     cartItems.forEach((spaceName) => {    
@@ -487,6 +518,34 @@ function requestAccessForCartItems() {
     // Clear the cart list    
     cartItems = [];    
     displayCartItems();    
+}  
+
+// Displays error notification if there are no comments
+function displayEmptyCommentNotification() {    
+    const notificationContainer = document.getElementById("notificationContainer");    
+      
+    let emptyCommentHTML = `    
+          <div class="alert alert-warning" role="alert" style="position: fixed; top: -100px; left: 50%; transform: translateX(-50%); z-index: 9999; animation: slide-down 1s forwards, slide-up 1s 4s forwards;">    
+              Please input some comments!    
+          </div>    
+          <style>    
+              @keyframes slide-down {    
+                  0% { top: -100px; }    
+                  100% { top: 20px; }    
+              }    
+              @keyframes slide-up {    
+                  0% { top: 20px; }    
+                  100% { top: -100px; }    
+              }    
+          </style>    
+      `;    
+      
+    notificationContainer.innerHTML = emptyCommentHTML;    
+      
+    // Remove the message after 5 seconds    
+    setTimeout(() => {    
+        notificationContainer.innerHTML = "";    
+    }, 5000);    
 }  
 
 // Displays a success message upon requesting access
