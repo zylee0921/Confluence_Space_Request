@@ -1,0 +1,45 @@
+<!DOCTYPE html>  
+<html>  
+<head>  
+    <style>  
+        table {  
+            width: 100%;  
+            border-collapse: collapse;  
+        }  
+        th, td {  
+            padding: 15px;  
+            text-align: left;  
+            border-bottom: 1px solid #ddd;  
+        }  
+        th {  
+            background-color: #dc143c;  
+            color: white;  
+        }  
+    </style>  
+</head>  
+
+<body>  
+  
+<h2>Request Access to Space for Group</h2>  
+
+<p><b>Username: </b>{{ username }}</p>  
+<p><b>Group: </b>{{ group }}</p>  
+<p><b>Comments: </b>{{ comments }}</p> 
+<p><b>You have requested for access to the following spaces: </b></p>  
+  
+<table>  
+    <tr>  
+        <th>Cart Items</th> 
+    </tr> 
+
+    {% for space in cart_items %}  
+        <tr>  
+            <td>
+                {{ space.name }}  
+            </td>
+        </tr>  
+    {% endfor %}
+</table>  
+  
+</body>  
+</html>  

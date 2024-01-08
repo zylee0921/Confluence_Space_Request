@@ -379,7 +379,7 @@ function displayCartItems() {
                 </div>  
                 <br>  
                 The cart is currently empty.  
-            </ul>`;  
+            </ul>`;   
     } else {  
         cartItems.forEach((spaceName) => {  
             cartItemsHTML += `  

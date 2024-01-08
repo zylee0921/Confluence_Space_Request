@@ -9,6 +9,9 @@ from django.template.loader import render_to_string
 # Permission/Authentication/Certification Stuff
 auth = HTTPBasicAuth(settings.CONFLUENCE_USERNAME, settings.CONFLUENCE_PASSWORD)  
 CERTIFICATE_PATH = '../certfile.crt' 
+
+# TODO
+# Send user record or group record to the requester so that they know that they have made the request successfully
   
 
 
@@ -98,7 +101,7 @@ def get_current_user(request):
         return JsonResponse(data)  
     except json.decoder.JSONDecodeError:  
         return JsonResponse({"error": "Failed to parse JSON"}, status=500)  
-  
+
 
 
 
@@ -113,7 +116,7 @@ def get_current_user_groups(request):
     else:  
         username = request.GET.get('username')   
     
-    url = "https://confluence-dev.amd.com/rest/api/user/memberof?username={}".format(username)      
+    url = f"https://confluence-dev.amd.com/rest/api/user/memberof?username={username}" 
     headers = {      
         "Accept": "application/json"      
     }      
@@ -135,6 +138,7 @@ def get_current_user_groups(request):
         return JsonResponse({"user_groups": user_groups})      
     except json.decoder.JSONDecodeError:      
         return JsonResponse({"error": "Failed to parse JSON"}, status=500)  
+
 
 
 
@@ -161,20 +165,35 @@ def send_request_email(request):
         from_email = settings.PERSONAL_EMAIL     
 
         if group:
-            html = render_to_string('contact/emails/groupform.html', {    
+            html = render_to_string('contact/emails/group_form.html', {    
                 'username': username,
                 'user_key': user_key,    
                 'group': group,
                 'cart_items': cart_items, 
                 'comments': comments,  
-            })    
+            }) 
+
+            html_record = render_to_string('contact/emails/group_record.html', {    
+                'username': username,
+                'user_key': user_key,    
+                'group': group,
+                'cart_items': cart_items, 
+                'comments': comments,  
+            })     
         else:
-            html = render_to_string('contact/emails/requestform.html', {    
+            html = render_to_string('contact/emails/user_form.html', {    
                 'username': username,
                 'user_key': user_key,    
                 'cart_items': cart_items,  
                 'comments': comments,  
             })    
+
+            html_record = render_to_string('contact/emails/user_record.html', {    
+                'username': username,
+                'user_key': user_key,    
+                'cart_items': cart_items,  
+                'comments': comments,  
+            }) 
     
         # Testing    
         print(f"Username: {username}")      
@@ -185,7 +204,10 @@ def send_request_email(request):
         print(html)    
         
         try:                    
-            send_mail(subject, message, from_email, [target_email], html_message=html)      
+            # Email to admin(s)
+            send_mail(subject, message, from_email, [target_email], html_message=html)  
+            # Email to user as a record
+            send_mail(subject, message, from_email, [username + "@amd.com"], html_message=html_record)     
             print("Email sent successfully")    
             return JsonResponse({'status': 'success', 'message': 'Email sent successfully'})         
         except Exception as e:      
