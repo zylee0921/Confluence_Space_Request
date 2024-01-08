@@ -9,6 +9,9 @@ from django.template.loader import render_to_string
 # Permission/Authentication/Certification Stuff
 auth = HTTPBasicAuth(settings.CONFLUENCE_USERNAME, settings.CONFLUENCE_PASSWORD)  
 CERTIFICATE_PATH = '../certfile.crt' 
+
+# TODO
+# Send user record or group record to the requester so that they know that they have made the request successfully
   
 
 
@@ -98,7 +101,7 @@ def get_current_user(request):
         return JsonResponse(data)  
     except json.decoder.JSONDecodeError:  
         return JsonResponse({"error": "Failed to parse JSON"}, status=500)  
-  
+
 
 
 
@@ -113,7 +116,7 @@ def get_current_user_groups(request):
     else:  
         username = request.GET.get('username')   
     
-    url = "https://confluence-dev.amd.com/rest/api/user/memberof?username={}".format(username)      
+    url = f"https://confluence-dev.amd.com/rest/api/user/memberof?username={username}" 
     headers = {      
         "Accept": "application/json"      
     }      
@@ -138,6 +141,7 @@ def get_current_user_groups(request):
 
 
 
+
 # Function used to send email
 def send_request_email(request):      
     # Testing    
@@ -150,6 +154,7 @@ def send_request_email(request):
         user_key = data.get('user_key')      
         cart_items = data.get('cart_items')    
         group = data.get('group')
+        comments = data.get('comments')
             
         subject = 'Request Access'      
         if group:  
@@ -160,28 +165,49 @@ def send_request_email(request):
         from_email = settings.PERSONAL_EMAIL     
 
         if group:
-            html = render_to_string('contact/emails/groupform.html', {    
+            html = render_to_string('contact/emails/group_form.html', {    
                 'username': username,
                 'user_key': user_key,    
                 'group': group,
-                'cart_items': cart_items,   
-            })    
-        else:
-            html = render_to_string('contact/emails/requestform.html', {    
+                'cart_items': cart_items, 
+                'comments': comments,  
+            }) 
+
+            html_record = render_to_string('contact/emails/group_record.html', {    
                 'username': username,
                 'user_key': user_key,    
-                'cart_items': cart_items,    
+                'group': group,
+                'cart_items': cart_items, 
+                'comments': comments,  
+            })     
+        else:
+            html = render_to_string('contact/emails/user_form.html', {    
+                'username': username,
+                'user_key': user_key,    
+                'cart_items': cart_items,  
+                'comments': comments,  
             })    
+
+            html_record = render_to_string('contact/emails/user_record.html', {    
+                'username': username,
+                'user_key': user_key,    
+                'cart_items': cart_items,  
+                'comments': comments,  
+            }) 
     
         # Testing    
         print(f"Username: {username}")      
         if group:  
             print(f"Group: {group}")
-        print(f"Cart items: {cart_items}")      
+        print(f"Cart items: {cart_items}")     
+        print(f"Comments: {comments}")     
         print(html)    
         
         try:                    
-            send_mail(subject, message, from_email, [target_email], html_message=html)      
+            # Email to admin(s)
+            send_mail(subject, message, from_email, [target_email], html_message=html)  
+            # Email to user as a record
+            send_mail(subject, message, from_email, [username + "@amd.com"], html_message=html_record)     
             print("Email sent successfully")    
             return JsonResponse({'status': 'success', 'message': 'Email sent successfully'})         
         except Exception as e:      
@@ -192,56 +218,56 @@ def send_request_email(request):
     
 
 
-# Grants permission to a user or group for a specific space
-def grant_permission(request):  
-    user_key = request.GET.get('user_key')  
-    group_name = request.GET.get('group_name')  
-    space_key = request.GET.get('space_key')   
+# # Grants permission to a user or group for a specific space
+# def grant_permission(request):  
+#     user_key = request.GET.get('user_key')  
+#     group_name = request.GET.get('group_name')  
+#     space_key = request.GET.get('space_key')   
   
-    print(f"User Key: {user_key}")  
-    if group_name:  
-        print(f"Group Name: {group_name}")  
-    print(f"Space Key: {space_key}")   
+#     print(f"User Key: {user_key}")  
+#     if group_name:  
+#         print(f"Group Name: {group_name}")  
+#     print(f"Space Key: {space_key}")   
   
-    # Define the Confluence REST API endpoint for updating space permissions  
-    space_permissions_url = f"https://confluence-dev.amd.com/rest/api/space/{space_key}/permission"  
+#     # Define the Confluence REST API endpoint for updating space permissions  
+#     space_permissions_url = f"https://confluence-dev.amd.com/rest/api/space/{space_key}/permission"  
  
-    # Set the permission data for the user or group (View for now)  
-    if group_name:  
-        permission_data = {  
-            "subject": {  
-                "type": "group",  
-                "identifier": group_name  
-            },  
-            "operation": {  
-                "key": "read",  
-                "target": "page"  
-            },  
-            "_links": {}  
-        }  
-    else:  
-        permission_data = {  
-            "subject": {
-                "type": "user",
-                "identifier": user_key
-            },
-            "operation": {
-                "key": "read",
-                "target": "page"
-            },
-            "_links": {}  
-        }  
+#     # Set the permission data for the user or group (View for now)  
+#     if group_name:  
+#         permission_data = {  
+#             "subject": {  
+#                 "type": "group",  
+#                 "identifier": group_name  
+#             },  
+#             "operation": {  
+#                 "key": "read",  
+#                 "target": "page"  
+#             },  
+#             "_links": {}  
+#         }  
+#     else:  
+#         permission_data = {  
+#             "subject": {
+#                 "type": "user",
+#                 "identifier": user_key
+#             },
+#             "operation": {
+#                 "key": "read",
+#                 "target": "page"
+#             },
+#             "_links": {}  
+#         }  
 
-    # Send a POST request to the Confluence REST API to update the space permissions  
-    response = requests.post(  
-        space_permissions_url,  
-        json=permission_data,  
-        auth=auth, 
-        verify=CERTIFICATE_PATH
-    )  
+#     # Send a POST request to the Confluence REST API to update the space permissions  
+#     response = requests.post(  
+#         space_permissions_url,  
+#         json=permission_data,  
+#         auth=auth, 
+#         verify=CERTIFICATE_PATH
+#     )  
   
-    if response.status_code == 200:  
-        return JsonResponse({"status": "success", "message": "Permission granted"})  
-    else:  
-        print(f"Confluence API error: {response.status_code} - {response.content}")  # Print the error details
-        return JsonResponse({"status": "error", "message": "Failed to grant permission"})
+#     if response.status_code == 200:  
+#         return JsonResponse({"status": "success", "message": "Permission granted"})  
+#     else:  
+#         print(f"Confluence API error: {response.status_code} - {response.content}")  # Print the error details
+#         return JsonResponse({"status": "error", "message": "Failed to grant permission"})

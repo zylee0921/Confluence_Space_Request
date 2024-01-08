@@ -6,5 +6,5 @@ urlpatterns = [
     path('api/current', views.get_current_user, name='get_current_user'),
     path('api/groups', views.get_current_user_groups, name='get_current_user_groups'),
     path('api/send_request_email', views.send_request_email, name='send_request_email'),
-    path('api/grant_permission', views.grant_permission, name='grant_permission'),
+    # path('api/grant_permission', views.grant_permission, name='grant_permission'),
 ]  

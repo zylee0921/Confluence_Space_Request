@@ -12,7 +12,7 @@
             border-bottom: 1px solid #ddd;  
         }  
         th {  
-            background-color: #4CAF50;  
+            background-color: #007bff;  
             color: white;  
         }  
     </style>  
@@ -20,16 +20,17 @@
 
 <body>  
   
-<h2>Request Access to Space for Group</h2>  
-
+<h2>Request Access to Space for User</h2>  
+  
 <p><b>Username: </b>{{ username }}</p>  
-<p><b>Group: </b>{{ group }}</p>  
+<p><b>Comments: </b>{{ comments }}</p>  
 <p><b>Requesting for access to the following spaces: </b></p>  
   
 <table>  
     <tr>  
         <th>Cart Items</th> 
-        <th>Space Permissions</th> 
+        <th>Permissions</th> 
+        {% comment %} <th>Action</th>  {% endcomment %}
     </tr> 
 
     {% for space in cart_items %}  
@@ -41,6 +42,10 @@
             <td>
                 <a href="https://confluence-dev.amd.com/spaces/spacepermissions.action?key={{ space.key }}" target="_blank">View Permissions</a>  
             </td>
+
+            {% comment %} <td>
+                <a href="http://localhost:8000/api/grant_permission?user_key={{ user_key }}&space_key={{ space.key }}" target="_blank">Give View Access</a>
+            </td> {% endcomment %}
         </tr>  
     {% endfor %}
 </table>  
